@@ -32,15 +32,11 @@ public class ValidationExceptionHandler {
 
     private String extractColumnName(DataIntegrityViolationException ex) {
         String message = ex.getMessage();
-        // Analiza el mensaje de la excepción para extraer el nombre de la columna única
-        // Esto puede variar según el mensaje específico de tu proveedor de base de datos
-        // Aquí hay un ejemplo para MySQL
         if (message.contains("Duplicate entry")) {
-            int start = message.indexOf("for key '") + 9; // 'for key ' tiene longitud 9
+            int start = message.indexOf("for key '") + 9;
             int end = message.indexOf("'", start);
             return message.substring(start, end);
         }
-        // Si no se puede extraer el nombre de la columna, regresa un mensaje genérico
         return "campo único";
     }
 }

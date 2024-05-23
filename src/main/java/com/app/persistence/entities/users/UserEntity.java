@@ -1,6 +1,7 @@
 package com.app.persistence.entities.users;
 
 import com.app.persistence.entities.students.StudentEntity;
+import com.app.persistence.entities.teachers.TeacherEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -57,6 +58,9 @@ public class UserEntity {
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> roles = new HashSet<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private StudentEntity student;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private TeacherEntity teacher;
 }
