@@ -1,11 +1,14 @@
 package com.app.util;
 
+import com.app.persistence.entities.users.InvitationTokenEntity;
+import com.app.persistence.repositories.InvitationTokenRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,6 +28,9 @@ public class JwtUtils {
 
     @Value("${security.jwt.user.generator}")
     private String userGenerator;
+
+    @Autowired
+    private InvitationTokenRepository invitationTokenRepository;
 
     public String createToken(Authentication auth) {
 
@@ -68,8 +75,40 @@ public class JwtUtils {
         return decodedJWT.getClaim(claimName);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
     public Map<String, Claim> returnAllClaims (DecodedJWT decodedJWT){
         return decodedJWT.getClaims();
+    }
+
+    public String generateInvitationToken(String email) {
+        String token = UUID.randomUUID().toString(); // Usar UUID para generar un token único
+
+        InvitationTokenEntity invitationToken = new InvitationTokenEntity();
+        invitationToken.setToken(token);
+        invitationToken.setEmail(email);
+        invitationToken.setExpiryDate(new Date(System.currentTimeMillis() + 3600000)); // 1 hour
+
+        invitationTokenRepository.save(invitationToken);
+
+        return token;
+    }
+
+    public String validateInvitationToken(String token) {
+        Optional<InvitationTokenEntity> optionalToken = invitationTokenRepository.findByToken(token);
+
+        if (optionalToken.isPresent()) {
+            InvitationTokenEntity invitationToken = optionalToken.get();
+            if (invitationToken.isUsed() || invitationToken.getExpiryDate().before(new Date())) {
+                throw new RuntimeException("Token is invalid or expired");
+            }
+            return invitationToken.getEmail();
+        } else {
+            throw new RuntimeException("Token not found");
+        }
     }
 
 }
