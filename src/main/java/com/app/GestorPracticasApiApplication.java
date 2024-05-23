@@ -1,11 +1,15 @@
 package com.app;
 
+import com.app.persistence.entities.students.ShiftEnum;
+import com.app.persistence.entities.students.StudentEntity;
+import com.app.persistence.entities.teachers.TeacherEntity;
 import com.app.persistence.entities.users.PermissionEntity;
 import com.app.persistence.entities.users.RoleEntity;
 import com.app.persistence.entities.users.RoleEnum;
 import com.app.persistence.entities.users.UserEntity;
 import com.app.persistence.repositories.PermissionRepository;
 import com.app.persistence.repositories.RoleRepository;
+import com.app.persistence.repositories.StudentRepository;
 import com.app.persistence.repositories.UserRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +27,10 @@ public class GestorPracticasApiApplication {
 	}
 
 	@Bean
-	CommandLineRunner init(PermissionRepository permissionRepository, RoleRepository roleRepository) {
+	CommandLineRunner init(PermissionRepository permissionRepository,
+						   RoleRepository roleRepository,
+						   UserRepository userRepository,
+						   StudentRepository studentRepository) {
 		return args -> {
 			/* Create PERMISSIONS */
 
@@ -72,6 +79,11 @@ public class GestorPracticasApiApplication {
 					.name("MOD_INSTITUTION_DELETE")
 					.build();
 
+			/* Mail */
+			PermissionEntity MailSendPermission = PermissionEntity.builder()
+					.name("MOD_MAIL_SEND")
+					.build();
+
 //			permissionRepository.saveAll(List.of(StudentCreatePermission,
 //					StudentReadPermission,
 //					StudentUpdatePermission,
@@ -92,7 +104,23 @@ public class GestorPracticasApiApplication {
 							StudentUpdatePermission,
 							StudentDeletePermission,
 							TeacherCreatePermission,
-							TeacherReadPermission))
+							TeacherReadPermission,
+							MailSendPermission))
+					.build();
+
+			RoleEntity roleTeacher = RoleEntity.builder()
+					.roleEnum(RoleEnum.TEACHER)
+					.permissionList(Set.of(StudentCreatePermission,
+							StudentReadPermission,
+							StudentUpdatePermission,
+							StudentDeletePermission,
+							TeacherCreatePermission,
+							TeacherReadPermission,
+							MailSendPermission,
+							InstitutionCreatePermission,
+							InstitutionReadPermission,
+							InstitutionUpdatePermission,
+							InstitutionDeletePermission))
 					.build();
 
 			RoleEntity roleStudent = RoleEntity.builder()
@@ -116,10 +144,111 @@ public class GestorPracticasApiApplication {
 							InstitutionCreatePermission,
 							InstitutionReadPermission,
 							InstitutionUpdatePermission,
-							InstitutionDeletePermission))
+							InstitutionDeletePermission,
+							MailSendPermission))
 					.build();
 
-			roleRepository.saveAll(List.of(roleAdmin, roleStudent, roleInvited, roleDeveloper));
+			//roleRepository.saveAll(List.of(roleAdmin, roleStudent, roleInvited, roleDeveloper, roleTeacher));
+
+			/* CREATE STUDENTS */
+			StudentEntity studentRoberto = StudentEntity.builder()
+					.controlNumber(123456)
+					.name("Roberto Aviles")
+					.email("avilesrobertoe@gmail.com")
+					.program("IDS")
+					.semester("6")
+					.shift(ShiftEnum.TV)
+					.build();
+
+			StudentEntity studentMedina = StudentEntity.builder()
+					.controlNumber(123450)
+					.name("Medina")
+					.email("medina@gmail.com")
+					.program("IDS")
+					.semester("6")
+					.shift(ShiftEnum.TV)
+					.build();
+
+			StudentEntity studentTito1 = StudentEntity.builder()
+					.controlNumber(123451)
+					.name("tito")
+					.email("titorey152@gmail.com")
+					.program("IDS")
+					.semester("6")
+					.shift(ShiftEnum.TV)
+					.build();
+
+			StudentEntity studentJavier = StudentEntity.builder()
+					.controlNumber(123452)
+					.name("Javier Hernandez")
+					.email("javier934hernandez@gmail.com")
+					.program("IDS")
+					.semester("6")
+					.shift(ShiftEnum.TV)
+					.build();
+
+			studentRepository.saveAll(List.of(studentMedina, studentTito1, studentJavier));
+
+			/* CREATE TEACHERS */
+			TeacherEntity TeacherIsra = TeacherEntity.builder()
+					.name("Isra")
+					.email("isra@gmailcom")
+					.build();
+
+			/* CREATE USERS */
+			UserEntity userRoberto = UserEntity.builder()
+					.username("Roberto")
+					.password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
+					.isEnabled(true)
+					.accountNoExpired(true)
+					.accountNoLocked(true)
+					.credentialNoExpired(true)
+					.roles(Set.of(roleAdmin))
+					.build();
+
+			UserEntity userAntonio = UserEntity.builder()
+					.username("Antonio")
+					.password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
+					.isEnabled(true)
+					.accountNoExpired(true)
+					.accountNoLocked(true)
+					.credentialNoExpired(true)
+					.student(studentRoberto)
+					.roles(Set.of(roleStudent))
+					.build();
+
+			UserEntity userIsra = UserEntity.builder()
+					.username("isra")
+					.password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
+					.isEnabled(true)
+					.accountNoExpired(true)
+					.accountNoLocked(true)
+					.credentialNoExpired(true)
+					.roles(Set.of(roleTeacher))
+					.teacher(TeacherIsra)
+					.build();
+
+			UserEntity userAndrea = UserEntity.builder()
+					.username("andrea")
+					.password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
+					.isEnabled(true)
+					.accountNoExpired(true)
+					.accountNoLocked(true)
+					.credentialNoExpired(true)
+					.roles(Set.of(roleInvited))
+					.build();
+
+			UserEntity userTito = UserEntity.builder()
+					.username("tito")
+					.password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
+					.isEnabled(true)
+					.accountNoExpired(true)
+					.accountNoLocked(true)
+					.credentialNoExpired(true)
+					.roles(Set.of(roleDeveloper))
+					.build();
+
+			userRepository.saveAll(List.of(userRoberto, userAntonio, userAndrea, userTito, userIsra));
 		};
 	}
 }
