@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
     Optional<StudentEntity> findStudentByControlNumber(int cont_num);
+    Optional<StudentEntity> findStudentByEmail(String email);
 }

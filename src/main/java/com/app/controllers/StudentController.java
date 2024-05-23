@@ -2,7 +2,7 @@ package com.app.controllers;
 
 import com.app.controllers.dto.request.StudentRequestDTO;
 import com.app.persistence.entities.students.StudentEntity;
-import com.app.services.StudentService;
+import com.app.services.impl.StudentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,17 +15,17 @@ import java.util.Optional;
 @RequestMapping("/api/students")
 public class StudentController {
 
-    private final StudentService studentService;
+    private final StudentServiceImpl studentServiceImpl;
 
     @Autowired
-    public StudentController(StudentService studentService) {
-        this.studentService = studentService;
+    public StudentController(StudentServiceImpl studentServiceImpl) {
+        this.studentServiceImpl = studentServiceImpl;
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createStudent(@RequestBody StudentRequestDTO studentDTO) {
         try {
-            StudentEntity savedStudent = studentService.saveStudent(studentDTO);
+            StudentEntity savedStudent = studentServiceImpl.saveStudent(studentDTO);
             return ResponseEntity.ok(savedStudent);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -34,13 +34,13 @@ public class StudentController {
 
     @GetMapping("/get-all")
     public ResponseEntity<List<StudentEntity>> getAllStudents() {
-        List<StudentEntity> students = studentService.getAllStudents();
+        List<StudentEntity> students = studentServiceImpl.getAllStudents();
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     @GetMapping("/get/{id}")
     public ResponseEntity<StudentEntity> getStudentById(@PathVariable Long id) {
-        Optional<StudentEntity> studentOptional = studentService.getStudentById(id);
+        Optional<StudentEntity> studentOptional = studentServiceImpl.getStudentById(id);
         return studentOptional.map(studentEntity -> new ResponseEntity<>(studentEntity, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }

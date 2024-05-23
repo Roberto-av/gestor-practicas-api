@@ -1,4 +1,4 @@
-package com.app.services;
+package com.app.services.impl;
 
 import com.app.controllers.dto.request.StudentRequestDTO;
 import com.app.persistence.entities.students.StudentEntity;
@@ -10,17 +10,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class StudentService {
+public class StudentServiceImpl {
 
     private final StudentRepository studentRepository;
 
     @Autowired
-    public StudentService(StudentRepository studentRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
 
     public Optional<StudentEntity> findStudentByControlNumber(int controlNumber) {
         return studentRepository.findStudentByControlNumber(controlNumber);
+    }
+
+    public Optional<StudentEntity> findStudentByEmail(String email) {
+        return studentRepository.findStudentByEmail(email);
     }
 
     public StudentEntity saveStudent(StudentRequestDTO studentDTO) {
