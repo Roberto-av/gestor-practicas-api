@@ -1,5 +1,6 @@
 package com.app.persistence.entities.students;
 
+import com.app.persistence.entities.groups.GroupEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -7,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.List;
 
 @Setter
 @Getter
@@ -51,4 +53,9 @@ public class StudentEntity {
     @LastModifiedDate
     @Column(name = "update_at")
     private Date updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private GroupEntity group;
+
 }

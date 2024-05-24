@@ -1,5 +1,7 @@
 package com.app.persistence.entities.users;
 
+import com.app.persistence.entities.groups.GroupEntity;
+import com.app.persistence.entities.groups.TaskEntity;
 import com.app.persistence.entities.students.StudentEntity;
 import com.app.persistence.entities.teachers.TeacherEntity;
 import jakarta.persistence.*;
@@ -10,6 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Setter
@@ -63,4 +66,15 @@ public class UserEntity {
 
     @OneToOne(cascade = CascadeType.ALL)
     private TeacherEntity teacher;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_group",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private List<GroupEntity> groups;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<TaskEntity> tasks;
 }
