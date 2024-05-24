@@ -1,5 +1,6 @@
 package com.app;
 
+import com.app.persistence.entities.institutions.*;
 import com.app.persistence.entities.students.ShiftEnum;
 import com.app.persistence.entities.students.StudentEntity;
 import com.app.persistence.entities.teachers.TeacherEntity;
@@ -7,10 +8,7 @@ import com.app.persistence.entities.users.PermissionEntity;
 import com.app.persistence.entities.users.RoleEntity;
 import com.app.persistence.entities.users.RoleEnum;
 import com.app.persistence.entities.users.UserEntity;
-import com.app.persistence.repositories.PermissionRepository;
-import com.app.persistence.repositories.RoleRepository;
-import com.app.persistence.repositories.StudentRepository;
-import com.app.persistence.repositories.UserRepository;
+import com.app.persistence.repositories.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
@@ -30,7 +28,9 @@ public class GestorPracticasApiApplication {
 	CommandLineRunner init(PermissionRepository permissionRepository,
 						   RoleRepository roleRepository,
 						   UserRepository userRepository,
-						   StudentRepository studentRepository) {
+						   StudentRepository studentRepository,
+						   InstitutionRepository institutionRepository,
+						   ProjectRepository projectRepository) {
 		return args -> {
 			/* Create PERMISSIONS */
 
@@ -249,6 +249,62 @@ public class GestorPracticasApiApplication {
 					.build();
 
 			userRepository.saveAll(List.of(userRoberto, userAntonio, userAndrea, userTito, userIsra));
+
+
+			/* INSTITUTIONS */
+			AddressEntity address = AddressEntity.builder()
+					.street("JALISCO 87 LOCAL 2")
+					.city("LA PAZ")
+					.state("BAJA CALIFORNIA SUR")
+					.postalCode("23097")
+					.country("México")
+					.build();
+
+			ResponsibleEntity responsible1 = ResponsibleEntity.builder()
+					.name("EMMANUEL PATRICIO VAZQUEZ SANCHEZ")
+					.position("PROPIETARIO")
+					.education("PASANTE INGENIERIA EN DESARROLLO COMPUTACIONAL")
+					.email("epvazquez@smcbcs.mx")
+					.confirmEmail("epvazquez@smcbcs.mx")
+					.phone("6121416759")
+					.build();
+
+//			ResponsibleEntity responsible2 = ResponsibleEntity.builder()
+//					.name("Jane Smith")
+//					.position("Director")
+//					.email("janesmith@example.com")
+//					.phone("098-765-4321")
+//					.build();
+
+			ProjectEntity proyecto1 = ProjectEntity.builder()
+					.name("ESEGUIMIENTO DE ALUMNOS DE BAJO APROVECHAMIENTO ESCOLAR")
+					.schedule("09:00-13:00")
+					.numHours(20)
+					.justification("SE BUSCA DAR SEGUIMIENTO OPORTUNO A AQUELLOS ALUMNOS DE BAJO APROVECHAMIENTO ESCOLAR, MEDIANTE EL DRIVE DE SEGUIMIENTO CON INFORMACION OTORGADA POR MAESTROS DE LAS DIFERENTES ASIGNATURAS.")
+					.objectives("CANALIZAR A LOS ALUMNOS QUE PRESENTAN BAJO APROVECHAMIENTO AL DEPARTAMENTO DE ORIENTACION ESCOLAR CON LA INTENCION DE EVITAR LA DESERCION\n" +
+							"\n")
+					.functions("CAPTURAR LA INFORMACION DE LAS DIFERENTES ASIGNATURAS EN DRIVE DE SEGUIMIENTO")
+					.requested(1)
+					.registered(1)
+					.build();
+
+			//rojectRepository.save(proyecto1);
+			InstitutionEntity institution = InstitutionEntity.builder()
+					.name("SERVICIOS MULTIPLES EN COMPUTO")
+					.rfc("VASE7409115I6")
+					.companyName("EMMANUEL PATRICIO VAZQUEZ SANCHEZ")
+					.sector(SectorEnum.PRIVATE)
+					.giro("VENTA AL POR MENOR DE EQUIPO DE COMPUTO, REDES Y CCTV")
+					.web("NO")
+					.support(false)
+					.address(address)
+					.telephoneNumber("6121416759")
+					.modality(ModalityEnum.HYBRID)
+					.responsible(responsible1)
+					.build();
+
+			institutionRepository.save(institution);
+
 		};
 	}
 }
