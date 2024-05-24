@@ -1,5 +1,6 @@
 package com.app.persistence.entities.users;
 
+import com.app.persistence.entities.groups.GroupEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
@@ -35,4 +36,7 @@ public class InvitationTokenEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date expiryDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
+    private GroupEntity group;
 }

@@ -69,7 +69,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void sendInvitations(String[] emails) throws MessagingException {
+    public void sendInvitations(String[] emails, Long groupId) throws MessagingException {
         for (String email : emails) {
             Optional<StudentEntity> studentOptional = studentRepository.findStudentByEmail(email);
 
@@ -77,7 +77,7 @@ public class EmailServiceImpl implements IEmailService {
                 StudentEntity studentEntity = studentOptional.get();
                 String nombreEstudiante = studentEntity.getName();
 
-                String token = jwtUtils.generateInvitationToken(email);
+                String token = jwtUtils.generateInvitationToken(email, groupId);
                 String link = "http://localhost:9090/auth/register/student?token=" + token;
 
                 Map<String, Object> templateVariables = new HashMap<>();

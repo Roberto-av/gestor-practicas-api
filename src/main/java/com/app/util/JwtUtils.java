@@ -1,6 +1,8 @@
 package com.app.util;
 
+import com.app.persistence.entities.groups.GroupEntity;
 import com.app.persistence.entities.users.InvitationTokenEntity;
+import com.app.persistence.repositories.GroupRepository;
 import com.app.persistence.repositories.InvitationTokenRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -31,6 +33,9 @@ public class JwtUtils {
 
     @Autowired
     private InvitationTokenRepository invitationTokenRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     public String createToken(Authentication auth) {
 
@@ -84,13 +89,17 @@ public class JwtUtils {
         return decodedJWT.getClaims();
     }
 
-    public String generateInvitationToken(String email) {
-        String token = UUID.randomUUID().toString(); // Usar UUID para generar un token único
+    public String generateInvitationToken(String email, Long groupId) {
+        String token = UUID.randomUUID().toString();
+
+        GroupEntity group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
 
         InvitationTokenEntity invitationToken = new InvitationTokenEntity();
         invitationToken.setToken(token);
         invitationToken.setEmail(email);
         invitationToken.setExpiryDate(new Date(System.currentTimeMillis() + 3600000)); // 1 hour
+        invitationToken.setGroup(group);
 
         invitationTokenRepository.save(invitationToken);
 

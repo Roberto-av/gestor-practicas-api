@@ -6,7 +6,6 @@ import com.app.controllers.dto.request.AuthLoginRequest;
 import com.app.controllers.dto.response.AuthResponse;
 import com.app.persistence.entities.students.StudentEntity;
 import com.app.persistence.entities.users.InvitationTokenEntity;
-import com.app.persistence.entities.users.RoleEntity;
 import com.app.persistence.repositories.InvitationTokenRepository;
 import com.app.persistence.repositories.RoleRepository;
 import com.app.persistence.repositories.StudentRepository;
@@ -19,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,13 +44,12 @@ public class AuthController {
     private InvitationTokenRepository invitationTokenRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthLoginRequest userRequest){
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthLoginRequest userRequest) {
         return new ResponseEntity<>(this.userDetailsService.loginUser(userRequest), HttpStatus.OK);
     }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthCreateUserRequest authCreateUserRequest) {
-        // Validar si los roles son válidos
         if (!isValidRoles(authCreateUserRequest.roleRequest().roles())) {
             return ResponseEntity.badRequest().body(new AuthResponse(null, "Invalid roles", null, false));
         }
@@ -66,30 +64,33 @@ public class AuthController {
     @PostMapping("/register/student")
     public ResponseEntity<?> registerStudent(@RequestParam("token") String token,
                                              @RequestBody @Valid AuthCreateStudentUser registerUserRequest) {
-        String email;
         try {
-            email = jwtUtils.validateInvitationToken(token);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-
-        Optional<StudentEntity> studentOptional = studentRepository.findStudentByEmail(email);
-        if (studentOptional.isPresent()) {
-            StudentEntity student = studentOptional.get();
-
-            userDetailsService.createUserWithRole(email, registerUserRequest.username(), registerUserRequest.password(), "STUDENT");
-
-            // Marcar el token como usado
             Optional<InvitationTokenEntity> optionalToken = invitationTokenRepository.findByToken(token);
-            if (optionalToken.isPresent()) {
-                InvitationTokenEntity invitationToken = optionalToken.get();
-                invitationToken.setUsed(true);
-                invitationTokenRepository.save(invitationToken);
+            if (optionalToken.isEmpty() || optionalToken.get().isUsed() || optionalToken.get().getExpiryDate().before(new Date())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
             }
 
-            return ResponseEntity.ok("Registro completado exitosamente");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se encontró el estudiante con el email especificado");
+            InvitationTokenEntity invitationToken = optionalToken.get();
+            String email = invitationToken.getEmail();
+            Long groupId = invitationToken.getGroup().getId();
+
+            Optional<StudentEntity> studentOptional = studentRepository.findStudentByEmail(email);
+            if (studentOptional.isPresent()) {
+                StudentEntity student = studentOptional.get();
+
+                userDetailsService.createUserWithRole(email, registerUserRequest.username(), registerUserRequest.password(), "STUDENT");
+                student.setGroup(invitationToken.getGroup());
+                studentRepository.save(student);
+
+                invitationToken.setUsed(true);
+                invitationTokenRepository.save(invitationToken);
+
+                return ResponseEntity.ok("Registro completado exitosamente");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se encontró el estudiante con el email especificado");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 

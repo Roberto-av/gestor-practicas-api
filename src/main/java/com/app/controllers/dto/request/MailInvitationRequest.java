@@ -1,4 +1,4 @@
 package com.app.controllers.dto.request;
 
-public record MailInvitationRequest(String[] emails) {
+public record MailInvitationRequest(String[] emails, Long groupId) {
 }

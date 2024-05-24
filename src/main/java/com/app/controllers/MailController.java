@@ -72,13 +72,13 @@ public class MailController {
     @PostMapping("/send-invitations")
     public ResponseEntity<?> sendInvitations(@RequestBody MailInvitationRequest invitationRequest) throws MessagingException {
         String[] emails = invitationRequest.emails();
+        Long groupId = invitationRequest.groupId(); // Asegúrate de que MailInvitationRequest tenga este campo
         try {
-            iEmailService.sendInvitations(emails);
+            iEmailService.sendInvitations(emails, groupId);
             Map<String, String> response = new HashMap<>();
             response.put("status", "invitations sent");
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            // Devuelve una respuesta con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
