@@ -85,9 +85,12 @@ public class TaskServiceImpl {
         taskRepository.delete(existingTask);
     }
 
-    public FileDTO uploadFile(Long taskId, MultipartFile file) {
+    public FileDTO uploadFile(Long taskId, Long userId , MultipartFile file) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IdNotFundException(taskId));
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IdNotFundException(userId));
 
         String originalFileName = file.getOriginalFilename();
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
@@ -103,6 +106,7 @@ public class TaskServiceImpl {
             FileEntity fileEntity = new FileEntity();
             fileEntity.setName(originalFileName);
             fileEntity.setFile_path(path.toString());
+            fileEntity.setUser(user);
             fileEntity.setTask(task);
 
             FileEntity savedFile = fileRepository.save(fileEntity);
@@ -164,6 +168,7 @@ public class TaskServiceImpl {
                 .name(fileEntity.getName())
                 .filePath(fileEntity.getFile_path())
                 .taskId(fileEntity.getTask().getId())
+                .userId(fileEntity.getUser().getId())
                 .build();
     }
 }

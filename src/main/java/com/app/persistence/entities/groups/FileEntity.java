@@ -1,5 +1,6 @@
 package com.app.persistence.entities.groups;
 
+import com.app.persistence.entities.users.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,4 +28,8 @@ public class FileEntity {
     @ManyToOne
     @JoinColumn(name = "task_id")
     private TaskEntity task;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 }

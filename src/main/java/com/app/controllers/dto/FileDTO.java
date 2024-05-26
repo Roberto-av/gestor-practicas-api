@@ -1,6 +1,5 @@
 package com.app.controllers.dto;
 
-import jdk.jshell.Snippet;
 import lombok.*;
 
 @Data
@@ -12,5 +11,5 @@ public class FileDTO {
     private String name;
     private String filePath;
     private Long taskId;
-
+    private Long userId;
 }

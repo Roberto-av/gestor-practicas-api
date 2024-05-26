@@ -58,8 +58,11 @@ public class TaskController {
     }
 
     @PostMapping("/{id}/upload-file")
-    public ResponseEntity<FileDTO> uploadFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
-        FileDTO uploadedFile = taskService.uploadFile(id, file);
+    public ResponseEntity<FileDTO> uploadFile(
+            @PathVariable Long id,
+            @RequestParam("userId") Long userId,
+            @RequestParam("file") MultipartFile file) {
+        FileDTO uploadedFile = taskService.uploadFile(id, userId, file);
         return ResponseEntity.ok(uploadedFile);
     }
 }
