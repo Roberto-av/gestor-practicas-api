@@ -8,6 +8,7 @@ import com.app.persistence.entities.institutions.AddressEntity;
 import com.app.persistence.entities.institutions.InstitutionEntity;
 import com.app.persistence.entities.institutions.ResponsibleEntity;
 import com.app.persistence.repositories.InstitutionRepository;
+import com.app.services.IInsitutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class InstitutionService {
+public class InstitutionService implements IInsitutionService {
 
     @Autowired
     private InstitutionRepository institutionRepository;
@@ -27,6 +28,7 @@ public class InstitutionService {
     private ResponsibleServiceImpl responsibleService;
 
 
+    @Override
     public InstitutionDTO createInstitution(InstitutionDTO institutionDTO) {
 
         InstitutionEntity institutionEntity = convertToEntity(institutionDTO);
@@ -35,7 +37,7 @@ public class InstitutionService {
         return convertToDTO(savedInstitution);
     }
 
-
+    @Override
     public InstitutionDTO getInstitutionById(Long id) {
         InstitutionEntity institutionEntity = institutionRepository
                 .findById(id)
@@ -44,20 +46,21 @@ public class InstitutionService {
         return convertToDTO(institutionEntity);
     }
 
+    @Override
     public InstitutionEntity getInstitutionEntityById(Long id) {
         return institutionRepository
                 .findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
     }
 
-
+    @Override
     public List<InstitutionDTO> getAllInstitutions() {
         List<InstitutionEntity> institutions = institutionRepository.findAll();
         return institutions.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-
+    @Override
     public InstitutionDTO updateInstitution(Long id, InstitutionDTO institutionDTO) {
 
         InstitutionEntity existingInstitution = institutionRepository.findById(id)
@@ -89,7 +92,7 @@ public class InstitutionService {
         return convertToDTO(savedInstitution);
     }
 
-
+    @Override
     public void deleteInstitution(Long id) {
         InstitutionEntity existingInstitution = institutionRepository.findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
