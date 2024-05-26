@@ -36,50 +36,51 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests->{
-                    requests.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
+                    requests.requestMatchers(HttpMethod.POST, "/auth/**").hasAnyRole("TEACHER", "DEVELOPER");
+                    requests.requestMatchers(HttpMethod.POST, "/auth/register/student").permitAll();
+
 
                     /* STUDENTS */
-                    requests.requestMatchers(HttpMethod.POST, "/api/students/**").hasAnyRole("TEACHER", "ADMIN", "DEVELOPER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/students/**").hasAnyRole("TEACHER", "ADMIN", "DEVELOPER");
+                    requests.requestMatchers(HttpMethod.POST, "/api/students/**").hasAnyAuthority("MOD_STUDENT_CREATE");
+                    requests.requestMatchers(HttpMethod.GET, "/api/students/**").hasAnyAuthority("MOD_STUDENT_READ");
 
                     /* MAIL */
-                    requests.requestMatchers(HttpMethod.POST, "/api/mail/**").hasAnyRole("TEACHER", "ADMIN", "DEVELOPER");
                     requests.requestMatchers(HttpMethod.POST, "/api/mail/**").hasAnyAuthority("MOD_MAIL_SEND");
 
                     /* TEACHERS */
-                    requests.requestMatchers(HttpMethod.POST, "/api/teachers/create").hasAnyRole("TEACHER", "ADMIN", "DEVELOPER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/teachers/**").hasAnyRole("TEACHER", "ADMIN", "DEVELOPER");
+                    requests.requestMatchers(HttpMethod.POST, "/api/teachers/create").hasAnyAuthority("MOD_TEACHER_CREATE");
+                    requests.requestMatchers(HttpMethod.GET, "/api/teachers/**").hasAnyAuthority("MOD_TEACHER_READ");
 
-                    /* ADDRESSES */
-                    requests.requestMatchers(HttpMethod.POST, "/api/addresses/create").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/addresses/**").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER","INVITED");
-                    requests.requestMatchers(HttpMethod.PUT, "/api/addresses/update").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-
-                    /* RESPONSIBLE */
-                    requests.requestMatchers(HttpMethod.POST, "/api/responsible/create").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/responsible/**").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER","INVITED");
-                    requests.requestMatchers(HttpMethod.PUT, "/api/responsible/update").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
+//                    /* ADDRESSES */
+//                    requests.requestMatchers(HttpMethod.POST, "/api/addresses/create").hasAnyAuthority("MOD_STUDENT_CREATE");
+//                    requests.requestMatchers(HttpMethod.GET, "/api/addresses/**").hasAnyAuthority("MOD_STUDENT_CREATE");
+//                    requests.requestMatchers(HttpMethod.PUT, "/api/addresses/update").hasAnyAuthority("MOD_STUDENT_CREATE");
+//
+//                    /* RESPONSIBLE */
+//                    requests.requestMatchers(HttpMethod.POST, "/api/responsible/create").hasAnyAuthority("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
+//                    requests.requestMatchers(HttpMethod.GET, "/api/responsible/**").hasAnyAuthority("STUDENT", "ADMIN", "DEVELOPER", "TEACHER","INVITED");
+//                    requests.requestMatchers(HttpMethod.PUT, "/api/responsible/update").hasAnyAuthority("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
 
                     /* INSTITUTIONS */
-                    requests.requestMatchers(HttpMethod.POST, "/api/institutions/create").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/institutions/**").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER","INVITED");
-                    requests.requestMatchers(HttpMethod.PUT, "/api/institutions/update").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
+                    requests.requestMatchers(HttpMethod.POST, "/api/institutions/create").hasAnyAuthority("MOD_INSTITUTION_CREATE");
+                    requests.requestMatchers(HttpMethod.GET, "/api/institutions/**").hasAnyAuthority("MOD_INSTITUTION_READ");
+                    requests.requestMatchers(HttpMethod.PUT, "/api/institutions/update").hasAnyAuthority("MOD_INSTITUTION_UPDATE");
 
                     /* PROJECTS */
-                    requests.requestMatchers(HttpMethod.POST, "/api/projects/create").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/projects/**").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER","INVITED");
-                    requests.requestMatchers(HttpMethod.PUT, "/api/projects/update").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
+                    requests.requestMatchers(HttpMethod.POST, "/api/projects/create").hasAnyAuthority("MOD_PROJECT_CREATE");
+                    requests.requestMatchers(HttpMethod.GET, "/api/projects/**").hasAnyAuthority("MOD_PROJECT_READ");
+                    requests.requestMatchers(HttpMethod.PUT, "/api/projects/update").hasAnyAuthority("MOD_PROJECT_UPDATE");
 
                     /* GROUPS */
-                    requests.requestMatchers(HttpMethod.POST, "/api/groups/create").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/groups/**").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.PUT, "/api/groups/update").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
+                    requests.requestMatchers(HttpMethod.POST, "/api/groups/create").hasAnyAuthority("MOD_GROUP_CREATE");
+                    requests.requestMatchers(HttpMethod.GET, "/api/groups/**").hasAnyAuthority("MOD_GROUP_READ");
+                    requests.requestMatchers(HttpMethod.PUT, "/api/groups/update").hasAnyAuthority("MOD_GROUP_UPDATE");
 
                     /* TASKS */
-                    requests.requestMatchers(HttpMethod.POST, "/api/tasks/create").hasAnyRole("ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.POST, "/api/tasks/{id}/upload-file").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.GET, "/api/tasks/**").hasAnyRole("STUDENT", "ADMIN", "DEVELOPER", "TEACHER");
-                    requests.requestMatchers(HttpMethod.PUT, "/api/tasks/update").hasAnyRole("ADMIN", "DEVELOPER", "TEACHER");
+                    requests.requestMatchers(HttpMethod.POST, "/api/tasks/create").hasAnyAuthority("MOD_TASK_CREATE");
+                    requests.requestMatchers(HttpMethod.POST, "/api/tasks/{id}/upload-file").hasAnyAuthority("MOD_TASK_UPLOAD_FILE");
+                    requests.requestMatchers(HttpMethod.GET, "/api/tasks/**").hasAnyAuthority("MOD_TASK_READ");
+                    requests.requestMatchers(HttpMethod.PUT, "/api/tasks/update").hasAnyAuthority("MOD_TASK_UPDATE");
 
 
                     requests.anyRequest().denyAll();
