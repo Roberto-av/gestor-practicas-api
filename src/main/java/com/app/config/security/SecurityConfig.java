@@ -36,8 +36,9 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests->{
-                    requests.requestMatchers(HttpMethod.POST, "/auth/**").hasAnyRole("TEACHER", "DEVELOPER");
+                    requests.requestMatchers(HttpMethod.POST, "/auth/register").hasAnyRole("TEACHER", "DEVELOPER");
                     requests.requestMatchers(HttpMethod.POST, "/auth/register/student").permitAll();
+                    requests.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
 
 
                     /* STUDENTS */
