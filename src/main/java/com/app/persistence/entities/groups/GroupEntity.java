@@ -46,7 +46,7 @@ public class GroupEntity {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     private List<TaskEntity> tasks;
 
-    @ManyToMany(mappedBy = "groups")
+    @ManyToMany(mappedBy = "groups", cascade = CascadeType.ALL)
     private List<UserEntity> users;
 
 }

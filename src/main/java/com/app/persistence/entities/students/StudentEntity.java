@@ -1,6 +1,8 @@
 package com.app.persistence.entities.students;
 
 import com.app.persistence.entities.groups.GroupEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -54,8 +56,14 @@ public class StudentEntity {
     @Column(name = "update_at")
     private Date updatedAt;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private GroupEntity group;
+
+    @JsonProperty("groupId")
+    public Long getGroupId() {
+        return group != null ? group.getId() : null;
+    }
 
 }
