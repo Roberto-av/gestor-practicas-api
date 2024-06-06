@@ -1,8 +1,10 @@
 package com.app.services.impl;
 
 import com.app.controllers.dto.GroupDTO;
+import com.app.controllers.dto.TaskDTO;
 import com.app.exceptions.IdNotFundException;
 import com.app.persistence.entities.groups.GroupEntity;
+import com.app.persistence.entities.groups.TaskEntity;
 import com.app.persistence.repositories.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,10 @@ public class GroupServiceImpl {
         groupDTO.setId(groupEntity.getId());
         groupDTO.setName(groupEntity.getName());
         groupDTO.setDescription(groupEntity.getDescription());
+        List<TaskDTO> tasks = groupEntity.getTasks().stream()
+                .map(this::convertTaskToDTO)
+                .collect(Collectors.toList());
+        groupDTO.setTasks(tasks);
         return groupDTO;
     }
 
@@ -65,6 +71,32 @@ public class GroupServiceImpl {
         groupEntity.setId(groupDTO.getId());
         groupEntity.setName(groupDTO.getName());
         groupEntity.setDescription(groupDTO.getDescription());
+        List<TaskEntity> tasks = groupDTO.getTasks().stream()
+                .map(this::convertTaskToEntity)
+                .collect(Collectors.toList());
+        groupEntity.setTasks(tasks);
         return groupEntity;
+    }
+
+    private TaskDTO convertTaskToDTO(TaskEntity taskEntity) {
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setId(taskEntity.getId());
+        taskDTO.setTittle(taskEntity.getTittle());
+        taskDTO.setDescription(taskEntity.getDescription());
+        taskDTO.setInitialDate(taskEntity.getInitialDate());
+        taskDTO.setEndDate(taskEntity.getEndDate());
+        taskDTO.setStatusTask(taskEntity.getStatusTask());
+        return taskDTO;
+    }
+
+    private TaskEntity convertTaskToEntity(TaskDTO taskDTO) {
+        TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setId(taskDTO.getId());
+        taskEntity.setTittle(taskDTO.getTittle());
+        taskEntity.setDescription(taskDTO.getDescription());
+        taskEntity.setInitialDate(taskDTO.getInitialDate());
+        taskEntity.setEndDate(taskDTO.getEndDate());
+        taskEntity.setStatusTask(taskDTO.getStatusTask());
+        return taskEntity;
     }
 }
