@@ -62,6 +62,7 @@ public class UserEntity {
     private Set<RoleEntity> roles = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "student_id", referencedColumnName = "id")
     private StudentEntity student;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -75,6 +76,6 @@ public class UserEntity {
     )
     private List<GroupEntity> groups;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TaskEntity> tasks;
 }

@@ -1,6 +1,8 @@
 package com.app.persistence.entities.students;
 
 import com.app.persistence.entities.groups.GroupEntity;
+import com.app.persistence.entities.institutions.InstitutionEntity;
+import com.app.persistence.entities.users.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -40,7 +42,7 @@ public class StudentEntity {
 
     private String program;
 
-    private String semester;
+    private int semester;
 
     @Column(name = "shift")
     @Enumerated(EnumType.STRING)
@@ -61,9 +63,27 @@ public class StudentEntity {
     @JoinColumn(name = "group_id")
     private GroupEntity group;
 
+    @JsonIgnore
+    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "institution_id")
+    private InstitutionEntity institution;
+
     @JsonProperty("groupId")
     public Long getGroupId() {
         return group != null ? group.getId() : null;
+    }
+
+    @JsonProperty("username")
+    public String getUsername() {
+        return user != null ? user.getUsername() : null;
+    }
+
+    @JsonProperty("institutionId")
+    public String getInstitutionName() {
+        return institution != null ? institution.getName() : null;
     }
 
 }

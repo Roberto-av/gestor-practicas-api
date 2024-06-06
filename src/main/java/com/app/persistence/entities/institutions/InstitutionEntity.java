@@ -1,5 +1,6 @@
 package com.app.persistence.entities.institutions;
 
+import com.app.persistence.entities.students.StudentEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -53,6 +54,9 @@ public class InstitutionEntity {
     @Column(name = "telefone_number")
     private String telephoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    private StatusEnum status = StatusEnum.PENDING;
+
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     @Column(name = "create_at" , updatable = false)
@@ -73,5 +77,16 @@ public class InstitutionEntity {
 
     @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProjectEntity> projects;
+
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<StudentEntity> students = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (status == null) {
+            status = StatusEnum.PENDING;
+        }
+    }
+
 
 }
