@@ -62,13 +62,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .flatMap(role -> role.getPermissionList().stream())
                 .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
 
-        return new User(userEntity.getUsername(),
-                userEntity.getPassword(),
-                userEntity.isEnabled(),
-                userEntity.isAccountNoExpired(),
-                userEntity.isCredentialNoExpired(),
-                userEntity.isAccountNoLocked(),
-                authorityList);
+        UserDetails userDetails = User.builder()
+                .username(userEntity.getUsername())
+                .password(userEntity.getPassword())
+                .authorities(authorityList)
+                .accountExpired(!userEntity.isAccountNoExpired())
+                .accountLocked(!userEntity.isAccountNoLocked())
+                .credentialsExpired(!userEntity.isCredentialNoExpired())
+                .disabled(!userEntity.isEnabled())
+                .build();
+
+        return userDetails;
     }
 
     public AuthResponse loginUser(AuthLoginRequest authLoginRequest){
