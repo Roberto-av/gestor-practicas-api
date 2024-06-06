@@ -43,10 +43,10 @@ public class GroupEntity {
     private List<StudentEntity> students;
 
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<TaskEntity> tasks;
 
-    @ManyToMany(mappedBy = "groups")
+    @ManyToMany(mappedBy = "groups", cascade = CascadeType.ALL)
     private List<UserEntity> users;
 
 }

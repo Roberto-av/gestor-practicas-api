@@ -1,0 +1,405 @@
+[
+  {
+    "controlNumber": 2026906,
+    "name": "Roberto",
+    "email": "avilesrobertoe@gmail.com",
+    "program": "IDS",
+    "semester": 6,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2020239,
+    "name": "Mr. James Mitchell",
+    "email": "johnsonashley@example.org",
+    "program": "IDS",
+    "semester": 2,
+    "shift": "TM",
+    "group": {
+      "id": "2"
+    }
+  },
+  {
+    "controlNumber": 2027740,
+    "name": "Adam Jacobs",
+    "email": "michelle78@example.com",
+    "program": "ITC",
+    "semester": 5,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2029546,
+    "name": "Laura Velez",
+    "email": "odavid@example.com",
+    "program": "IDS",
+    "semester": 5,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2029463,
+    "name": "Mr. Juan Butler",
+    "email": "andersonangel@example.org",
+    "program": "IDS",
+    "semester": 1,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2021076,
+    "name": "Alison Clarke",
+    "email": "cohenkenneth@example.com",
+    "program": "IDS",
+    "semester": 1,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2028196,
+    "name": "Karen Powell",
+    "email": "blakesuzanne@example.org",
+    "program": "IDS",
+    "semester": 4,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2028868,
+    "name": "Savannah Schmidt",
+    "email": "shortsteven@example.org",
+    "program": "ITC",
+    "semester": 6,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2029496,
+    "name": "Jordan Mcintyre",
+    "email": "vargasrobert@example.net",
+    "program": "IDS",
+    "semester": 2,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2026281,
+    "name": "Sheri Pitts",
+    "email": "osnyder@example.org",
+    "program": "IDS",
+    "semester": 8,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2022260,
+    "name": "Raymond Johnson",
+    "email": "maryjohnston@example.com",
+    "program": "ITC",
+    "semester": 5,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2021277,
+    "name": "Kathryn Smith",
+    "email": "desiree41@example.org",
+    "program": "ITC",
+    "semester": 2,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2024629,
+    "name": "Michael Jones",
+    "email": "owright@example.net",
+    "program": "IDS",
+    "semester": 4,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2022664,
+    "name": "Jeff Espinoza",
+    "email": "whester@example.net",
+    "program": "ITC",
+    "semester": 3,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2022006,
+    "name": "Dr. Anna Williams DVM",
+    "email": "bkim@example.org",
+    "program": "IDS",
+    "semester": 8,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2024221,
+    "name": "Angela Miller",
+    "email": "savannah68@example.com",
+    "program": "ITC",
+    "semester": 8,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2021858,
+    "name": "George Barrett",
+    "email": "acastro@example.com",
+    "program": "ITC",
+    "semester": 5,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2026070,
+    "name": "Victoria Marquez",
+    "email": "ruizkathleen@example.com",
+    "program": "ITC",
+    "semester": 4,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2027991,
+    "name": "Susan Calderon",
+    "email": "maria26@example.net",
+    "program": "IDS",
+    "semester": 3,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2029845,
+    "name": "Matthew Alvarez",
+    "email": "jackpetty@example.net",
+    "program": "IDS",
+    "semester": 5,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2025035,
+    "name": "Dorothy Vincent",
+    "email": "rsnyder@example.com",
+    "program": "ITC",
+    "semester": 8,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2026381,
+    "name": "John Wolf",
+    "email": "kzamora@example.com",
+    "program": "ITC",
+    "semester": 7,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2027479,
+    "name": "Hannah Richardson",
+    "email": "daniel83@example.net",
+    "program": "ITC",
+    "semester": 3,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2024601,
+    "name": "Elizabeth Floyd",
+    "email": "masonriley@example.com",
+    "program": "IDS",
+    "semester": 8,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2023329,
+    "name": "Mr. Christopher Vargas",
+    "email": "sestrada@example.net",
+    "program": "IDS",
+    "semester": 4,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2020759,
+    "name": "Susan Knight",
+    "email": "joshuaharrison@example.net",
+    "program": "ITC",
+    "semester": 8,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2020631,
+    "name": "Emily Johnson",
+    "email": "idavies@example.net",
+    "program": "ITC",
+    "semester": 8,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2022939,
+    "name": "Caitlin Burke",
+    "email": "grodriguez@example.org",
+    "program": "IDS",
+    "semester": 1,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2023185,
+    "name": "William Whitaker",
+    "email": "chanbailey@example.org",
+    "program": "IDS",
+    "semester": 4,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2028713,
+    "name": "Joseph Ramirez",
+    "email": "sandra94@example.net",
+    "program": "ITC",
+    "semester": 1,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2023572,
+    "name": "Zachary Leonard",
+    "email": "acabrera@example.org",
+    "program": "ITC",
+    "semester": 2,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2024164,
+    "name": "Cathy Richardson",
+    "email": "emejia@example.net",
+    "program": "IDS",
+    "semester": 8,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2025430,
+    "name": "David Mcgee",
+    "email": "hbooth@example.net",
+    "program": "ITC",
+    "semester": 1,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2026595,
+    "name": "Daniel Mendez",
+    "email": "christopherbyrd@example.org",
+    "program": "IDS",
+    "semester": 4,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2021973,
+    "name": "Joseph Johnson",
+    "email": "joshuadiaz@example.org",
+    "program": "ITC",
+    "semester": 7,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2028406,
+    "name": "Ryan Stokes",
+    "email": "christopher70@example.net",
+    "program": "IDS",
+    "semester": 2,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2027898,
+    "name": "Bradley Barton",
+    "email": "mlee@example.net",
+    "program": "ITC",
+    "semester": 1,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2026310,
+    "name": "Kayla Willis",
+    "email": "ellisderek@example.org",
+    "program": "ITC",
+    "semester": 1,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2023013,
+    "name": "Ashley Walker MD",
+    "email": "garretthiggins@example.com",
+    "program": "ITC",
+    "semester": 8,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2023284,
+    "name": "Jennifer Hanson",
+    "email": "garyking@example.com",
+    "program": "IDS",
+    "semester": 1,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2026837,
+    "name": "Shelby Joseph",
+    "email": "erik35@example.com",
+    "program": "ITC",
+    "semester": 2,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2022496,
+    "name": "Justin Garcia",
+    "email": "mary58@example.com",
+    "program": "IDS",
+    "semester": 5,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2020625,
+    "name": "Dustin Parsons",
+    "email": "tanya24@example.org",
+    "program": "IDS",
+    "semester": 6,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2020226,
+    "name": "Kathleen Joyce",
+    "email": "qmunoz@example.org",
+    "program": "ITC",
+    "semester": 3,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2026859,
+    "name": "Connor Ramsey",
+    "email": "summersdean@example.com",
+    "program": "IDS",
+    "semester": 3,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2027192,
+    "name": "Larry Sanchez",
+    "email": "riveramelissa@example.org",
+    "program": "ITC",
+    "semester": 3,
+    "shift": "TV"
+  },
+  {
+    "controlNumber": 2022476,
+    "name": "Laura Rodriguez",
+    "email": "nancyryan@example.org",
+    "program": "ITC",
+    "semester": 6,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2025754,
+    "name": "Randy Allen",
+    "email": "bobby00@example.com",
+    "program": "IDS",
+    "semester": 8,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2028831,
+    "name": "Sharon Mccarthy",
+    "email": "jesusruiz@example.com",
+    "program": "ITC",
+    "semester": 7,
+    "shift": "TM"
+  },
+  {
+    "controlNumber": 2024305,
+    "name": "William Wilson",
+    "email": "shortshannon@example.org",
+    "program": "ITC",
+    "semester": 8,
+    "shift": "TM"
+  }
+]

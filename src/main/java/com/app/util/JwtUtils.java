@@ -2,8 +2,10 @@ package com.app.util;
 
 import com.app.persistence.entities.groups.GroupEntity;
 import com.app.persistence.entities.users.InvitationTokenEntity;
+import com.app.persistence.entities.users.UserEntity;
 import com.app.persistence.repositories.GroupRepository;
 import com.app.persistence.repositories.InvitationTokenRepository;
+import com.app.persistence.repositories.UserRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -35,13 +38,21 @@ public class JwtUtils {
     private InvitationTokenRepository invitationTokenRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private GroupRepository groupRepository;
 
     public String createToken(Authentication auth) {
-
         Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
 
         String username = (String) auth.getPrincipal();
+
+        // Obtener el UserEntity desde el UserDetails
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        Long userId = userEntity.getId();
 
         String authorities = auth.getAuthorities()
                 .stream()
@@ -51,6 +62,7 @@ public class JwtUtils {
         return JWT.create()
                 .withIssuer(this.userGenerator)
                 .withSubject(username)
+                .withClaim("userId", userId.toString()) // Agregar el ID del usuario
                 .withClaim("authorities", authorities)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 7200000))

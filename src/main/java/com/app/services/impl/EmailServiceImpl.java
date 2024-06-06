@@ -78,7 +78,7 @@ public class EmailServiceImpl implements IEmailService {
                 String nombreEstudiante = studentEntity.getName();
 
                 String token = jwtUtils.generateInvitationToken(email, groupId);
-                String link = "http://localhost:9090/auth/register/student?token=" + token;
+                String link = "http://localhost:3000/auth/register/student?token=" + token;
 
                 Map<String, Object> templateVariables = new HashMap<>();
                 templateVariables.put("nombreEstudiante", nombreEstudiante);

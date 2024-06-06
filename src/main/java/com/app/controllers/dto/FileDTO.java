@@ -1,7 +1,8 @@
 package com.app.controllers.dto;
 
-import jdk.jshell.Snippet;
 import lombok.*;
+
+import java.util.Date;
 
 @Data
 @Builder
@@ -12,5 +13,7 @@ public class FileDTO {
     private String name;
     private String filePath;
     private Long taskId;
-
+    private UserDTO user;
+    private Date createdAt;
+    private Date updatedAt;
 }

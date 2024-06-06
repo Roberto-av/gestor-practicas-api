@@ -4,18 +4,22 @@ import com.app.controllers.dto.AddressDTO;
 import com.app.controllers.dto.InstitutionDTO;
 import com.app.controllers.dto.ResponsibleDTO;
 import com.app.exceptions.IdNotFundException;
+import com.app.exceptions.UniqueFieldViolationException;
 import com.app.persistence.entities.institutions.AddressEntity;
 import com.app.persistence.entities.institutions.InstitutionEntity;
 import com.app.persistence.entities.institutions.ResponsibleEntity;
+import com.app.persistence.entities.students.StudentEntity;
 import com.app.persistence.repositories.InstitutionRepository;
+import com.app.services.IInsitutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class InstitutionService {
+public class InstitutionService implements IInsitutionService {
 
     @Autowired
     private InstitutionRepository institutionRepository;
@@ -27,7 +31,18 @@ public class InstitutionService {
     private ResponsibleServiceImpl responsibleService;
 
 
+    @Override
     public InstitutionDTO createInstitution(InstitutionDTO institutionDTO) {
+
+        Optional<InstitutionEntity> existingInstitutionByRfc = institutionRepository.findInstitutionByRfc(institutionDTO.getRfc());
+        if (existingInstitutionByRfc.isPresent()) {
+            throw new UniqueFieldViolationException(institutionDTO.getRfc());
+        }
+
+        Optional<InstitutionEntity> existingInstitutionByCompanyName = institutionRepository.findInstitutionByCompanyName(institutionDTO.getCompanyName());
+        if (existingInstitutionByCompanyName.isPresent()) {
+            throw new UniqueFieldViolationException(institutionDTO.getCompanyName());
+        }
 
         InstitutionEntity institutionEntity = convertToEntity(institutionDTO);
         InstitutionEntity savedInstitution = institutionRepository.save(institutionEntity);
@@ -35,7 +50,7 @@ public class InstitutionService {
         return convertToDTO(savedInstitution);
     }
 
-
+    @Override
     public InstitutionDTO getInstitutionById(Long id) {
         InstitutionEntity institutionEntity = institutionRepository
                 .findById(id)
@@ -44,20 +59,21 @@ public class InstitutionService {
         return convertToDTO(institutionEntity);
     }
 
+    @Override
     public InstitutionEntity getInstitutionEntityById(Long id) {
         return institutionRepository
                 .findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
     }
 
-
+    @Override
     public List<InstitutionDTO> getAllInstitutions() {
         List<InstitutionEntity> institutions = institutionRepository.findAll();
         return institutions.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-
+    @Override
     public InstitutionDTO updateInstitution(Long id, InstitutionDTO institutionDTO) {
 
         InstitutionEntity existingInstitution = institutionRepository.findById(id)
@@ -72,6 +88,7 @@ public class InstitutionService {
         existingInstitution.setSector(institutionDTO.getSector());
         existingInstitution.setModality(institutionDTO.getModality());
         existingInstitution.setTelephoneNumber(institutionDTO.getTelephoneNumber());
+        existingInstitution.setStatus(institutionDTO.getStatus());
 
 
         if (institutionDTO.getAddress() != null) {
@@ -89,7 +106,7 @@ public class InstitutionService {
         return convertToDTO(savedInstitution);
     }
 
-
+    @Override
     public void deleteInstitution(Long id) {
         InstitutionEntity existingInstitution = institutionRepository.findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
@@ -107,6 +124,7 @@ public class InstitutionService {
         institutionDTO.setSupport(institutionEntity.isSupport());
         institutionDTO.setSector(institutionEntity.getSector());
         institutionDTO.setModality(institutionEntity.getModality());
+        institutionDTO.setStatus(institutionEntity.getStatus());
         institutionDTO.setTelephoneNumber(institutionEntity.getTelephoneNumber());
 
         // Convertir la dirección si existe
@@ -136,6 +154,7 @@ public class InstitutionService {
         institutionEntity.setSupport(institutionDTO.isSupport());
         institutionEntity.setSector(institutionDTO.getSector());
         institutionEntity.setModality(institutionDTO.getModality());
+        institutionEntity.setStatus(institutionDTO.getStatus());
         institutionEntity.setTelephoneNumber(institutionDTO.getTelephoneNumber());
 
         // Convertir la dirección si existe

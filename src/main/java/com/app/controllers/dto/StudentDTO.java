@@ -1,18 +1,12 @@
-package com.app.controllers.dto.request;
+package com.app.controllers.dto;
 
-import com.app.controllers.dto.GroupDTO;
 import com.app.persistence.entities.students.ShiftEnum;
-import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
-@Builder
+import java.util.Date;
+
 @Data
-public class StudentRequestDTO {
-
+public class StudentDTO {
     private Long id;
     private int controlNumber;
     private String name;
@@ -21,4 +15,8 @@ public class StudentRequestDTO {
     private int semester;
     private ShiftEnum shift;
     private GroupDTO group;
+    private Date createdAt;
+    private Date updatedAt;
+    private String username;
+    private String institutionName;
 }

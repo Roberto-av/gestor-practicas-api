@@ -1,11 +1,12 @@
 package com.app.persistence.entities.groups;
 
+import com.app.persistence.entities.institutions.StatusEnum;
 import com.app.persistence.entities.users.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Setter
@@ -26,11 +27,15 @@ public class TaskEntity {
 
     private String description;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private StatusTaskEnum statusTask;
+
     @Column(name = "initial_date")
-    private Date initialDate;
+    private LocalDateTime initialDate;
 
     @Column(name = "end_date")
-    private Date endDate;
+    private LocalDateTime endDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -42,4 +47,11 @@ public class TaskEntity {
     @ManyToOne
     @JoinColumn(name = "group_id")
     private GroupEntity group;
+
+    @PrePersist
+    protected void onCreate() {
+        if (statusTask == null) {
+            statusTask = StatusTaskEnum.DISABLE;
+        }
+    }
 }
