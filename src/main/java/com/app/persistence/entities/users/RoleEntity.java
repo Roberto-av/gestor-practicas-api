@@ -28,7 +28,7 @@ public class RoleEntity {
     @Enumerated(EnumType.STRING)
     private RoleEnum roleEnum;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "role_permissions", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<PermissionEntity> permissionList = new HashSet<>();
 
@@ -41,4 +41,15 @@ public class RoleEntity {
     @LastModifiedDate
     @Column(name = "update_at")
     private Date updatedAt;
+
+    // Add orphan removal to handle removal of permissions correctly
+    public void addPermission(PermissionEntity permission) {
+        this.permissionList.add(permission);
+        permission.getRoles().add(this);
+    }
+
+    public void removePermission(PermissionEntity permission) {
+        this.permissionList.remove(permission);
+        permission.getRoles().remove(this);
+    }
 }

@@ -7,6 +7,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -34,4 +36,7 @@ public class PermissionEntity {
     @LastModifiedDate
     @Column(name = "update_at")
     private Date updatedAt;
+
+    @ManyToMany(mappedBy = "permissionList", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<RoleEntity> roles = new HashSet<>();
 }
