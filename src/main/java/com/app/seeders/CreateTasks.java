@@ -38,7 +38,7 @@ public class CreateTasks {
 
         UserEntity user = userOptional.get();
 
-        String title = "Tareas";
+        String title = "Tarea";
         String description = "Subir la tarea";
 
         List<TaskEntity> tasks = new ArrayList<>();

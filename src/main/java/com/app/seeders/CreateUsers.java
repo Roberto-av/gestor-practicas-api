@@ -31,6 +31,7 @@ public class CreateUsers {
         PermissionEntity studentCreatePermission = PermissionEntity.builder().name("MOD_STUDENT_CREATE").build();
         PermissionEntity studentReadPermission = PermissionEntity.builder().name("MOD_STUDENT_READ").build();
         PermissionEntity studentUpdatePermission = PermissionEntity.builder().name("MOD_STUDENT_UPDATE").build();
+        PermissionEntity studentDeletePermission = PermissionEntity.builder().name("MOD_STUDENT_DELETE").build();
 
         /* PERMISSIONS-TEACHERS */
         PermissionEntity teacherCreatePermission = PermissionEntity.builder().name("MOD_TEACHER_CREATE").build();
@@ -64,6 +65,11 @@ public class CreateUsers {
         PermissionEntity tasksDeletePermission = PermissionEntity.builder().name("MOD_TASK_DELETE").build();
         PermissionEntity tasksUploadFilePermission = PermissionEntity.builder().name("MOD_TASK_UPLOAD_FILE").build();
 
+        /* PERMISSIONS-USERS */
+        PermissionEntity userReadPermission = PermissionEntity.builder().name("MOD_USER_READ").build();
+        PermissionEntity userUpdatePermission = PermissionEntity.builder().name("MOD_USER_UPDATE").build();
+        PermissionEntity userDeletePermission = PermissionEntity.builder().name("MOD_USER_DELETE").build();
+
         /* ROLES */
         RoleEntity roleAdmin = RoleEntity.builder()
                 .roleEnum(RoleEnum.ADMIN)
@@ -82,6 +88,7 @@ public class CreateUsers {
                 .permissionList(Set.of(studentCreatePermission,
                         studentReadPermission,
                         studentUpdatePermission,
+                        studentDeletePermission,
                         teacherCreatePermission,
                         teacherReadPermission,
                         mailSendPermission,
@@ -101,7 +108,10 @@ public class CreateUsers {
                         tasksReadPermission,
                         tasksUpdatePermission,
                         tasksDeletePermission,
-                        tasksUploadFilePermission))
+                        tasksUploadFilePermission,
+                        userReadPermission,
+                        userUpdatePermission,
+                        userDeletePermission))
                 .build();
 
         RoleEntity roleStudent = RoleEntity.builder()
@@ -112,7 +122,9 @@ public class CreateUsers {
                         projectReadPermission,
                         groupReadPermission,
                         tasksReadPermission,
-                        tasksUploadFilePermission))
+                        studentReadPermission,
+                        tasksUploadFilePermission,
+                        userReadPermission))
                 .build();
 
         RoleEntity roleInvited = RoleEntity.builder()
@@ -126,6 +138,7 @@ public class CreateUsers {
                 .permissionList(Set.of(studentCreatePermission,
                         studentReadPermission,
                         studentUpdatePermission,
+                        studentDeletePermission,
                         teacherCreatePermission,
                         teacherReadPermission,
                         institutionCreatePermission,
@@ -145,7 +158,10 @@ public class CreateUsers {
                         tasksReadPermission,
                         tasksUpdatePermission,
                         tasksDeletePermission,
-                        tasksUploadFilePermission))
+                        tasksUploadFilePermission,
+                        userReadPermission,
+                        userUpdatePermission,
+                        userDeletePermission))
                 .build();
 
         /* STUDENTS */
@@ -154,7 +170,7 @@ public class CreateUsers {
 					.name("John Smit")
 					.email("John@gmail.com")
 					.program("IDS")
-					.semester("9")
+					.semester(9)
 					.shift(ShiftEnum.TM)
 					.build();
 
