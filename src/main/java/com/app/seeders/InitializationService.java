@@ -41,7 +41,7 @@ public class InitializationService {
         createInstitutions.CreateAllInstitutions();
         createGroups.createAllGroups();
         createTasks.createAllTasks();
-        createProjects.createAllProjects();
+        //createProjects.createAllProjects();
         createStudents.createAllStudents();
     }
 }
