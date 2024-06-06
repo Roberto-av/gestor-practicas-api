@@ -1,5 +1,8 @@
 package com.app.controllers.dto;
 
+import com.app.persistence.entities.groups.GroupEntity;
+import com.app.persistence.entities.groups.StatusTaskEnum;
+import com.app.persistence.entities.users.UserEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +20,8 @@ public class TaskDTO {
     private String description;
     private LocalDateTime initialDate;
     private LocalDateTime endDate;
-    private Long userId;
-    private Long groupId;
+    private UserDTO user;
+    private GroupDTO group;
     private List<FileDTO> files;
+    private StatusTaskEnum statusTask;
 }

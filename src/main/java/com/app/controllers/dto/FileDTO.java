@@ -2,6 +2,8 @@ package com.app.controllers.dto;
 
 import lombok.*;
 
+import java.util.Date;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -11,5 +13,7 @@ public class FileDTO {
     private String name;
     private String filePath;
     private Long taskId;
-    private Long userId;
+    private UserDTO user;
+    private Date createdAt;
+    private Date updatedAt;
 }

@@ -2,6 +2,7 @@ package com.app.controllers.dto;
 
 import com.app.persistence.entities.institutions.ModalityEnum;
 import com.app.persistence.entities.institutions.SectorEnum;
+import com.app.persistence.entities.institutions.StatusEnum;
 import lombok.Data;
 
 @Data
@@ -16,6 +17,7 @@ public class InstitutionDTO {
     private SectorEnum sector;
     private ModalityEnum modality;
     private String telephoneNumber;
+    private StatusEnum status;
     private AddressDTO address;
     private ResponsibleDTO responsible;
 }
