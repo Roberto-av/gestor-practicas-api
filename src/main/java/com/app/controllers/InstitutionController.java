@@ -42,7 +42,7 @@ public class InstitutionController {
         return new ResponseEntity<>(updatedInstitution, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteInstitution(@PathVariable Long id) {
         institutionService.deleteInstitution(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
