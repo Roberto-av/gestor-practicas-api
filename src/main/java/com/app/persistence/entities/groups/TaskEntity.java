@@ -48,6 +48,9 @@ public class TaskEntity {
     @JoinColumn(name = "group_id")
     private GroupEntity group;
 
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private List<SubmissionEntity> submissions;
+
     @PrePersist
     protected void onCreate() {
         if (statusTask == null) {

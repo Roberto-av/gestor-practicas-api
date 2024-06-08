@@ -46,12 +46,12 @@ public class SecurityConfig {
                     requests.requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyAuthority("MOD_STUDENT_DELETE");
 
                     /* STUDENTS */
-                    requests.requestMatchers(HttpMethod.POST, "/api/students/**").hasAnyAuthority("MOD_STUDENT_CREATE");
+                    requests.requestMatchers(HttpMethod.POST, "/api/students/create").hasAnyAuthority("MOD_STUDENT_CREATE");
                     requests.requestMatchers(HttpMethod.GET, "/api/students/**").hasAnyAuthority("MOD_STUDENT_READ");
                     requests.requestMatchers(HttpMethod.PUT, "/api/students/update").hasAnyAuthority("MOD_STUDENT_UPDATE");
                     requests.requestMatchers(HttpMethod.DELETE, "/api/students/{id}").hasAnyAuthority("MOD_STUDENT_DELETE");
-                    requests.requestMatchers(HttpMethod.POST, "/api/students/subscribe-institution").hasAnyRole("STUDENT");
-                    requests.requestMatchers(HttpMethod.POST, "/api/students/unsubscribe-institution").hasAnyRole("STUDENT");
+                    requests.requestMatchers(HttpMethod.POST, "/api/students/subscribe-institution").hasAnyRole("STUDENT", "TEACHER");
+                    requests.requestMatchers(HttpMethod.POST, "/api/students/unsubscribe-institution").hasAnyRole("STUDENT", "TEACHER");
 
                     /* MAIL */
                     requests.requestMatchers(HttpMethod.POST, "/api/mail/**").hasAnyAuthority("MOD_MAIL_SEND");
@@ -95,6 +95,11 @@ public class SecurityConfig {
                     requests.requestMatchers(HttpMethod.GET, "/api/tasks/**").hasAnyAuthority("MOD_TASK_READ");
                     requests.requestMatchers(HttpMethod.PUT, "/api/tasks/update").hasAnyAuthority("MOD_TASK_UPDATE");
                     requests.requestMatchers(HttpMethod.DELETE, "/api/tasks/delete/{id}").hasAnyAuthority("MOD_TASK_DELETE");
+                    requests.requestMatchers(HttpMethod.POST, "/api/tasks/**").hasAnyRole("TEACHER","STUDENT");
+                    requests.requestMatchers(HttpMethod.PUT, "/api/tasks/{taskId}/submission/{submissionId}").hasAnyRole("TEACHER","STUDENT");
+                    requests.requestMatchers(HttpMethod.DELETE, "/api/tasks/delete/submission/{submissionId}/files/{fileId}").hasAnyRole("TEACHER","STUDENT");
+
+
 
 
 

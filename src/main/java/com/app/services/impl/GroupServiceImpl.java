@@ -9,6 +9,7 @@ import com.app.persistence.repositories.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,10 +60,17 @@ public class GroupServiceImpl {
         groupDTO.setId(groupEntity.getId());
         groupDTO.setName(groupEntity.getName());
         groupDTO.setDescription(groupEntity.getDescription());
-        List<TaskDTO> tasks = groupEntity.getTasks().stream()
-                .map(this::convertTaskToDTO)
-                .collect(Collectors.toList());
-        groupDTO.setTasks(tasks);
+
+        // Verificar si la lista de tareas no es nula
+        if (groupEntity.getTasks() != null) {
+            List<TaskDTO> tasks = groupEntity.getTasks().stream()
+                    .map(this::convertTaskToDTO)
+                    .collect(Collectors.toList());
+            groupDTO.setTasks(tasks);
+        } else {
+            groupDTO.setTasks(new ArrayList<>());
+        }
+
         return groupDTO;
     }
 
@@ -71,10 +79,16 @@ public class GroupServiceImpl {
         groupEntity.setId(groupDTO.getId());
         groupEntity.setName(groupDTO.getName());
         groupEntity.setDescription(groupDTO.getDescription());
-        List<TaskEntity> tasks = groupDTO.getTasks().stream()
-                .map(this::convertTaskToEntity)
-                .collect(Collectors.toList());
-        groupEntity.setTasks(tasks);
+
+        if (groupDTO.getTasks() != null) {
+            List<TaskEntity> tasks = groupDTO.getTasks().stream()
+                    .map(this::convertTaskToEntity)
+                    .collect(Collectors.toList());
+            groupEntity.setTasks(tasks);
+        } else {
+            groupEntity.setTasks(null);
+        }
+
         return groupEntity;
     }
 
