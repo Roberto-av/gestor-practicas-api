@@ -18,5 +18,5 @@ public class StudentDTO {
     private Date createdAt;
     private Date updatedAt;
     private String username;
-    private String institutionName;
+    private InstitutionDTO institution;
 }

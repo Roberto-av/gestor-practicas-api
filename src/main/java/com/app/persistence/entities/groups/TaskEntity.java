@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -42,11 +43,14 @@ public class TaskEntity {
     private UserEntity user;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    private List<FileEntity> files;
+    private List<FileEntity> files = new ArrayList<>();;
 
     @ManyToOne
     @JoinColumn(name = "group_id")
     private GroupEntity group;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private List<SubmissionEntity> submissions;
 
     @PrePersist
     protected void onCreate() {

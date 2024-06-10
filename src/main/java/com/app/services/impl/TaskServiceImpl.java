@@ -1,18 +1,16 @@
 package com.app.services.impl;
 
+import com.app.components.ConverterDTO;
 import com.app.controllers.dto.FileDTO;
-import com.app.controllers.dto.GroupDTO;
+import com.app.controllers.dto.SubmissionDTO;
+import com.app.controllers.dto.SubmissionFileDTO;
 import com.app.controllers.dto.TaskDTO;
-import com.app.controllers.dto.UserDTO;
 import com.app.exceptions.IdNotFundException;
-import com.app.persistence.entities.groups.FileEntity;
-import com.app.persistence.entities.groups.GroupEntity;
-import com.app.persistence.entities.groups.TaskEntity;
+import com.app.exceptions.UnauthorizedException;
+import com.app.persistence.entities.groups.*;
 import com.app.persistence.entities.users.UserEntity;
-import com.app.persistence.repositories.FileRepository;
-import com.app.persistence.repositories.GroupRepository;
-import com.app.persistence.repositories.TaskRepository;
-import com.app.persistence.repositories.UserRepository;
+import com.app.persistence.repositories.*;
+import com.app.services.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,13 +19,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class TaskServiceImpl {
-
+public class TaskServiceImpl implements ITaskService {
 
     @Autowired
     private TaskRepository taskRepository;
@@ -41,26 +37,76 @@ public class TaskServiceImpl {
     @Autowired
     private FileRepository fileRepository;
 
+    @Autowired
+    private SubmissionRepository submissionRepository;
+
+    @Autowired
+    private SubmissionFileRepository SubmissionFileRepository;
+
+    @Autowired
+    private ConverterDTO taskMapper;
+
+    @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
-        TaskEntity taskEntity = convertToEntity(taskDTO);
+
+        UserEntity user = userRepository.findById(taskDTO.getUser().getId())
+                .orElseThrow(() -> new IdNotFundException(taskDTO.getUser().getId()));
+
+        GroupEntity group = groupRepository.findById(taskDTO.getGroup().getId())
+                .orElseThrow(() -> new IdNotFundException(taskDTO.getGroup().getId()));
+
+        TaskEntity taskEntity = taskMapper.toEntity(taskDTO, user, group);
+
+        if (taskEntity.getFiles() == null) {
+            taskEntity.setFiles(new ArrayList<>());
+        }
+
         TaskEntity savedTask = taskRepository.save(taskEntity);
-        return convertToDTO(savedTask);
+
+        return taskMapper.toDTO(savedTask);
     }
 
+    @Override
+    public TaskDTO createTaskWithFiles(TaskDTO taskDTO, List<MultipartFile> files) {
+
+        UserEntity user = userRepository.findById(taskDTO.getUser().getId())
+                .orElseThrow(() -> new IdNotFundException(taskDTO.getUser().getId()));
+
+        GroupEntity group = groupRepository.findById(taskDTO.getGroup().getId())
+                .orElseThrow(() -> new IdNotFundException(taskDTO.getGroup().getId()));
+
+        TaskEntity taskEntity = taskMapper.toEntity(taskDTO, user, group);
+
+        if (taskEntity.getFiles() == null) {
+            taskEntity.setFiles(new ArrayList<>());
+        }
+
+        TaskEntity savedTask = taskRepository.save(taskEntity);
+
+        for (MultipartFile file : files) {
+            uploadFile(savedTask.getId(), taskDTO.getUser().getId(), file);
+        }
+
+        return taskMapper.toDTO(savedTask);
+    }
+
+    @Override
     public TaskDTO getTaskById(Long id) {
         TaskEntity taskEntity = taskRepository.findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
-        return convertToDTO(taskEntity);
+        return taskMapper.toDTO(taskEntity);
     }
 
+    @Override
     public List<TaskDTO> getAllTasks() {
         List<TaskEntity> tasks = taskRepository.findAll();
         return tasks.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .map(taskMapper::toDTO)
+                .toList();
     }
 
-    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+    @Override
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO, List<MultipartFile> files) {
         TaskEntity existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
 
@@ -68,6 +114,7 @@ public class TaskServiceImpl {
         existingTask.setDescription(taskDTO.getDescription());
         existingTask.setInitialDate(taskDTO.getInitialDate());
         existingTask.setEndDate(taskDTO.getEndDate());
+        existingTask.setStatusTask(taskDTO.getStatusTask());
 
         UserEntity user = userRepository.findById(taskDTO.getUser().getId())
                 .orElseThrow(() -> new IdNotFundException(taskDTO.getUser().getId()));
@@ -77,18 +124,25 @@ public class TaskServiceImpl {
                 .orElseThrow(() -> new IdNotFundException(taskDTO.getGroup().getId()));
         existingTask.setGroup(group);
 
-        existingTask.setStatusTask(taskDTO.getStatusTask());
-
         TaskEntity savedTask = taskRepository.save(existingTask);
-        return convertToDTO(savedTask);
+
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                uploadFile(savedTask.getId(), taskDTO.getUser().getId(), file);
+            }
+        }
+
+        return taskMapper.toDTO(savedTask);
     }
 
+    @Override
     public void deleteTask(Long id) {
         TaskEntity existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
         taskRepository.delete(existingTask);
     }
 
+    @Override
     public FileDTO uploadFile(Long taskId, Long userId, MultipartFile file) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IdNotFundException(taskId));
@@ -100,7 +154,7 @@ public class TaskServiceImpl {
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
         String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
 
-        String fileStorageLocation = "src/main/resources/files/docs/";
+        String fileStorageLocation = "src/main/resources/files/";
         Path path = Paths.get(fileStorageLocation + uniqueFileName);
 
         try {
@@ -110,128 +164,206 @@ public class TaskServiceImpl {
             FileEntity fileEntity = new FileEntity();
             fileEntity.setName(originalFileName);
             fileEntity.setFile_path(path.toString());
-            fileEntity.setUser(user);
             fileEntity.setTask(task);
+            fileEntity.setUser(user);
 
             FileEntity savedFile = fileRepository.save(fileEntity);
-            return convertToFileDTO(savedFile);
+            return taskMapper.toFileDTO(savedFile);
         } catch (IOException e) {
-            throw new RuntimeException("Error al subir el archivo", e);
+            throw new RuntimeException("Error uploading file", e);
         }
     }
 
+    @Override
     public List<TaskDTO> getAllTasksWithFiles() {
         List<TaskEntity> tasks = taskRepository.findAll();
         return tasks.stream()
-                .map(taskEntity -> {
-                    TaskDTO taskDTO = convertToDTO(taskEntity);
-                    List<FileDTO> fileDTOs = taskEntity.getFiles().stream()
-                            .map(this::convertToFileDTO)
-                            .collect(Collectors.toList());
-                    taskDTO.setFiles(fileDTOs);
+                .map(task -> {
+                    TaskDTO taskDTO = taskMapper.toDTO(task);
+                    Optional<FileEntity> files = fileRepository.findById(task.getId());
+                    taskDTO.setFiles(files.stream().map(taskMapper::toFileDTO).toList());
                     return taskDTO;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    @Override
     public TaskDTO getTaskWithFiles(Long taskId) {
         TaskEntity taskEntity = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IdNotFundException(taskId));
-
-        TaskDTO taskDTO = convertToDTO(taskEntity);
-        List<FileDTO> fileDTOs = taskEntity.getFiles().stream()
-                .map(this::convertToFileDTO)
-                .collect(Collectors.toList());
-        taskDTO.setFiles(fileDTOs);
-
+        TaskDTO taskDTO = taskMapper.toDTO(taskEntity);
+        Optional<FileEntity> files = fileRepository.findById(taskId);
+        taskDTO.setFiles(files.stream().map(taskMapper::toFileDTO).toList());
         return taskDTO;
     }
 
+    @Override
     public Path getFilePath(Long fileId) {
         FileEntity fileEntity = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IdNotFundException(fileId));
         return Paths.get(fileEntity.getFile_path());
     }
 
-    private TaskDTO convertToDTO(TaskEntity taskEntity) {
-        TaskDTO taskDTO = new TaskDTO();
-        taskDTO.setId(taskEntity.getId());
-        taskDTO.setTittle(taskEntity.getTittle());
-        taskDTO.setDescription(taskEntity.getDescription());
-        taskDTO.setInitialDate(taskEntity.getInitialDate());
-        taskDTO.setEndDate(taskEntity.getEndDate());
+    @Override
+    public SubmissionDTO submitTask(Long taskId, Long userId, List<MultipartFile> files) {
+        TaskEntity task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IdNotFundException(taskId));
 
-        // Mapear y asignar los datos del usuario al DTO de tarea
-        if (taskEntity.getUser() != null) {
-            UserEntity userEntity = taskEntity.getUser();
-            UserDTO userDTO = convertUserEntityToDTO(userEntity);
-            taskDTO.setUser(userDTO);
-        }
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IdNotFundException(userId));
 
-        // Mapear y asignar los datos del grupo al DTO de tarea
-        if (taskEntity.getGroup() != null) {
-            GroupEntity groupEntity = taskEntity.getGroup();
-            GroupDTO groupDTO = convertGroupEntityToDTO(groupEntity);
-            taskDTO.setGroup(groupDTO);
-        }
-
-        taskDTO.setStatusTask(taskEntity.getStatusTask());
-
-
-        return taskDTO;
-    }
-
-    private TaskEntity convertToEntity(TaskDTO taskDTO) {
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setId(taskDTO.getId());
-        taskEntity.setTittle(taskDTO.getTittle());
-        taskEntity.setDescription(taskDTO.getDescription());
-        taskEntity.setInitialDate(taskDTO.getInitialDate());
-        taskEntity.setEndDate(taskDTO.getEndDate());
-
-        UserEntity user = userRepository.findById(taskDTO.getUser().getId())
-                .orElseThrow(() -> new IdNotFundException(taskDTO.getUser().getId()));
-        taskEntity.setUser(user);
-
-        GroupEntity group = groupRepository.findById(taskDTO.getGroup().getId())
-                .orElseThrow(() -> new IdNotFundException(taskDTO.getGroup().getId()));
-        taskEntity.setGroup(group);
-
-        taskEntity.setStatusTask(taskDTO.getStatusTask());
-
-        return taskEntity;
-    }
-
-    private FileDTO convertToFileDTO(FileEntity fileEntity) {
-        UserEntity userEntity = fileEntity.getUser();
-
-        UserDTO userDTO = UserDTO.builder()
-                .id(userEntity.getId())
-                .username(userEntity.getUsername())
+        SubmissionEntity submissionEntity = SubmissionEntity.builder()
+                .task(task)
+                .user(user)
                 .build();
 
-        return FileDTO.builder()
-                .id(fileEntity.getId())
-                .name(fileEntity.getName())
-                .filePath(fileEntity.getFile_path())
-                .taskId(fileEntity.getTask().getId())
-                .user(userDTO)
-                .createdAt(fileEntity.getCreatedAt())
-                .updatedAt(fileEntity.getUpdatedAt())
-                .build();
+        SubmissionEntity savedSubmission = submissionRepository.save(submissionEntity);
+
+        for (MultipartFile file : files) {
+            String originalFileName = file.getOriginalFilename();
+            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+
+            String fileStorageLocation = "src/main/resources/files/submissions/";
+            Path path = Paths.get(fileStorageLocation + uniqueFileName);
+
+            try {
+                Files.createDirectories(path.getParent());
+                Files.copy(file.getInputStream(), path);
+
+                SubmissionFileEntity submissionFileEntity = new SubmissionFileEntity();
+                submissionFileEntity.setName(originalFileName);
+                submissionFileEntity.setFilePath(path.toString());
+                submissionFileEntity.setSubmission(savedSubmission);
+
+                SubmissionFileRepository.save(submissionFileEntity);
+            } catch (IOException e) {
+                throw new RuntimeException("Error uploading file", e);
+            }
+        }
+
+        return taskMapper.toSubmissionDTO(savedSubmission);
     }
 
-    private UserDTO convertUserEntityToDTO(UserEntity userEntity) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(userEntity.getId());
-        userDTO.setUsername(userEntity.getUsername());
-        return userDTO;
+    @Override
+    public List<SubmissionFileDTO> getSubmissionFiles(Long submissionId) {
+        SubmissionEntity submissionEntity = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new IdNotFundException(submissionId));
+
+        List<SubmissionFileEntity> submissionFiles = submissionEntity.getFiles();
+        if (submissionFiles == null || submissionFiles.isEmpty()) {
+            return Collections.emptyList(); // Retorna una lista vacía si no hay archivos asociados
+        }
+
+        return submissionFiles.stream()
+                .map(taskMapper::toSubmissionFileDTO) // Convierte las entidades de archivos de presentación en objetos SubmissionFileDTO
+                .collect(Collectors.toList());
     }
 
-    private GroupDTO convertGroupEntityToDTO(GroupEntity groupEntity) {
-        GroupDTO groupDTO = new GroupDTO();
-        groupDTO.setId(groupEntity.getId());
-        groupDTO.setName(groupEntity.getName());
-        return groupDTO;
+    @Override
+    public SubmissionDTO updateSubmission(Long taskId, Long submissionId, Long userId, List<MultipartFile> files) {
+        TaskEntity task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IdNotFundException(taskId));
+
+        SubmissionEntity submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new IdNotFundException(submissionId));
+
+        if (!submission.getUser().getId().equals(userId)) {
+            throw new UnauthorizedException("User is not authorized to update this submission");
+        }
+
+        // Actualizar los archivos adjuntos de la entrega
+        List<SubmissionFileEntity> existingFiles = submission.getFiles();
+        for (MultipartFile file : files) {
+            String originalFileName = file.getOriginalFilename();
+            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+
+            String fileStorageLocation = "src/main/resources/files/submissions/";
+            Path path = Paths.get(fileStorageLocation + uniqueFileName);
+
+            try {
+                Files.createDirectories(path.getParent());
+                Files.copy(file.getInputStream(), path);
+
+                SubmissionFileEntity submissionFileEntity = new SubmissionFileEntity();
+                submissionFileEntity.setName(originalFileName);
+                submissionFileEntity.setFilePath(path.toString());
+                submissionFileEntity.setSubmission(submission);
+
+                // Si ya existe un archivo con el mismo nombre, actualizarlo en lugar de crear uno nuevo
+                Optional<SubmissionFileEntity> existingFile = existingFiles.stream()
+                        .filter(f -> f.getName().equals(originalFileName))
+                        .findFirst();
+                if (existingFile.isPresent()) {
+                    SubmissionFileEntity updatedFile = existingFile.get();
+                    updatedFile.setFilePath(path.toString());
+                    SubmissionFileRepository.save(updatedFile);
+                } else {
+                    SubmissionFileRepository.save(submissionFileEntity);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error uploading file", e);
+            }
+        }
+
+        return taskMapper.toSubmissionDTO(submission);
     }
+
+    @Override
+    public List<SubmissionDTO> getSubmissionByTaskAndUser(Long taskId, Long userId) {
+
+        TaskEntity task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IdNotFundException(taskId));
+
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IdNotFundException(userId));
+        List<SubmissionEntity> submissions = submissionRepository.findByTaskAndUser(task, user);
+
+        return submissions.stream()
+                .map(taskMapper::toSubmissionDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteSubmissionFile(Long submissionId, Long fileId) {
+        SubmissionEntity submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new IdNotFundException(submissionId));
+
+        SubmissionFileEntity file = SubmissionFileRepository.findById(fileId)
+                .orElseThrow(() -> new IdNotFundException(fileId));
+
+        if (!file.getSubmission().getId().equals(submissionId)) {
+            throw new UnauthorizedException("File does not belong to this submission");
+        }
+
+        Path path = Paths.get(file.getFilePath());
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Error deleting file", e);
+        }
+        SubmissionFileRepository.delete(file);
+    }
+
+    @Override
+    public List<SubmissionDTO> getSubmissionsByTask(Long taskId) {
+        TaskEntity task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IdNotFundException(taskId));
+
+        List<SubmissionEntity> submissions = submissionRepository.findByTask(task);
+        return submissions.stream()
+                .map(taskMapper::toSubmissionDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Path getSubmissionFilePath(Long fileId) {
+        SubmissionFileEntity fileEntity = SubmissionFileRepository.findById(fileId)
+                .orElseThrow(() -> new IdNotFundException(fileId));
+        return Paths.get(fileEntity.getFilePath());
+    }
+
+
 }

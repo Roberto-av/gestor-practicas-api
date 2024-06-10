@@ -1,6 +1,7 @@
 package com.app.services.impl;
 
 import com.app.controllers.dto.GroupDTO;
+import com.app.controllers.dto.InstitutionDTO;
 import com.app.controllers.dto.StudentInstitutionDTO;
 import com.app.controllers.dto.request.StudentRequestDTO;
 import com.app.controllers.dto.StudentDTO;
@@ -103,12 +104,17 @@ public class StudentServiceImpl {
         existingStudent.setSemester(studentDTO.getSemester());
         existingStudent.setShift(studentDTO.getShift());
 
-        GroupEntity group = groupRepository.findById(studentDTO.getGroup().getId())
-                .orElseThrow(() -> new IdNotFundException(studentDTO.getGroup().getId()));
-        existingStudent.setGroup(group);
+        if (studentDTO.getGroup() != null && studentDTO.getGroup().getId() != null) {
+            GroupEntity group = groupRepository.findById(studentDTO.getGroup().getId())
+                    .orElseThrow(() -> new IdNotFundException(studentDTO.getGroup().getId()));
+            existingStudent.setGroup(group);
+        } else {
+            existingStudent.setGroup(null);
+        }
 
         return convertToDTO(studentRepository.save(existingStudent));
     }
+
 
     public void deleteStudent(Long id) {
         StudentEntity student = studentRepository.findById(id)
@@ -173,7 +179,9 @@ public class StudentServiceImpl {
         }
 
         if (studentEntity.getInstitution() != null) {
-            studentDTO.setInstitutionName(studentEntity.getInstitution().getName());
+            InstitutionEntity institutionEntity = studentEntity.getInstitution();
+            InstitutionDTO institutionDTO = convertInstitutionEntityToDTO(institutionEntity);
+            studentDTO.setInstitution(institutionDTO);
         }
 
         return studentDTO;
@@ -193,11 +201,9 @@ public class StudentServiceImpl {
                 .orElseThrow(() -> new IdNotFundException(studentDTO.getGroup().getId()));
         studentEntity.setGroup(group);
 
-        if (studentDTO.getInstitutionName() != null) {
-            InstitutionEntity institution = institutionRepository.findByName(studentDTO.getInstitutionName())
-                    .orElseThrow(() -> new textNotFundException(studentDTO.getInstitutionName()));
-            studentEntity.setInstitution(institution);
-        }
+        InstitutionEntity institution = institutionRepository.findById(studentDTO.getInstitution().getId())
+                .orElseThrow(() -> new IdNotFundException(studentDTO.getInstitution().getId()));
+        studentEntity.setInstitution(institution);
 
         return studentEntity;
     }
@@ -207,6 +213,13 @@ public class StudentServiceImpl {
         groupDTO.setId(groupEntity.getId());
         groupDTO.setName(groupEntity.getName());
         return groupDTO;
+    }
+
+    private InstitutionDTO convertInstitutionEntityToDTO(InstitutionEntity institutionEntity) {
+        InstitutionDTO institutionDTO = new InstitutionDTO();
+        institutionDTO.setId(institutionEntity.getId());
+        institutionDTO.setName(institutionEntity.getName());
+        return institutionDTO;
     }
 }
 

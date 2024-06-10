@@ -81,9 +81,4 @@ public class StudentEntity {
         return user != null ? user.getUsername() : null;
     }
 
-    @JsonProperty("institutionId")
-    public String getInstitutionName() {
-        return institution != null ? institution.getName() : null;
-    }
-
 }

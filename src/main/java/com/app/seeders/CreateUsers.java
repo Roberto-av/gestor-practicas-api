@@ -1,238 +1,94 @@
 package com.app.seeders;
 
-import com.app.persistence.entities.students.ShiftEnum;
+import com.app.controllers.dto.StudentDTO;
+import com.app.controllers.dto.initialData.RolePermissionDTO;
+import com.app.controllers.dto.initialData.UserDTO;
 import com.app.persistence.entities.students.StudentEntity;
-import com.app.persistence.entities.teachers.TeacherEntity;
-import com.app.persistence.entities.users.PermissionEntity;
 import com.app.persistence.entities.users.RoleEntity;
-import com.app.persistence.entities.users.RoleEnum;
 import com.app.persistence.entities.users.UserEntity;
+import com.app.persistence.repositories.RoleRepository;
 import com.app.persistence.repositories.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class CreateUsers {
+    private static final Logger logger = LoggerFactory.getLogger(CreateUsers.class);
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final ObjectMapper jacksonObjectMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public CreateUsers(UserRepository userRepository) {
+    public CreateUsers(UserRepository userRepository, RoleRepository roleRepository,
+                      ObjectMapper jacksonObjectMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.jacksonObjectMapper = jacksonObjectMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public void createUsers() {
-        /* PERMISSIONS */
+    @Transactional
+    public void createAllUsers() {
+        try (InputStream inputStream = getClass().getResourceAsStream("/data/json/users.json")) {
+            List<UserDTO> userDtos = jacksonObjectMapper.readValue(inputStream, new TypeReference<>() {});
+            for (UserDTO userDto : userDtos) {
+                Optional<UserEntity> existingUser = userRepository.findByUsername(userDto.getUsername());
+                if (existingUser.isEmpty()) {
+                    // Create new user entity
+                    UserEntity user = new UserEntity();
+                    user.setUsername(userDto.getUsername());
+                    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+                    user.setEnabled(userDto.isEnabled());
+                    user.setAccountNoExpired(userDto.isAccountNoExpired());
+                    user.setAccountNoLocked(userDto.isAccountNoLocked());
+                    user.setCredentialNoExpired(userDto.isCredentialNoExpired());
 
-        /* PERMISSIONS-STUDENTS */
-        PermissionEntity studentCreatePermission = PermissionEntity.builder().name("MOD_STUDENT_CREATE").build();
-        PermissionEntity studentReadPermission = PermissionEntity.builder().name("MOD_STUDENT_READ").build();
-        PermissionEntity studentUpdatePermission = PermissionEntity.builder().name("MOD_STUDENT_UPDATE").build();
-        PermissionEntity studentDeletePermission = PermissionEntity.builder().name("MOD_STUDENT_DELETE").build();
+                    // Resolve roles from database
+                    Set<RoleEntity> resolvedRoles = resolveRoles(userDto.getRoles());
+                    user.setRoles(resolvedRoles);
 
-        /* PERMISSIONS-TEACHERS */
-        PermissionEntity teacherCreatePermission = PermissionEntity.builder().name("MOD_TEACHER_CREATE").build();
-        PermissionEntity teacherReadPermission = PermissionEntity.builder().name("MOD_TEACHER_READ").build();
+                    // Set student information
+                    if (userDto.getStudent() != null) {
+                        StudentDTO studentDto = userDto.getStudent();
+                        StudentEntity student = new StudentEntity();
+                        student.setId(studentDto.getId());
+                        user.setStudent(student);
+                    }
 
-        /* PERMISSIONS-INSTITUTIONS */
-        PermissionEntity institutionCreatePermission = PermissionEntity.builder().name("MOD_INSTITUTION_CREATE").build();
-        PermissionEntity institutionReadPermission = PermissionEntity.builder().name("MOD_INSTITUTION_READ").build();
-        PermissionEntity institutionUpdatePermission = PermissionEntity.builder().name("MOD_INSTITUTION_UPDATE").build();
-        PermissionEntity institutionDeletePermission = PermissionEntity.builder().name("MOD_INSTITUTION_DELETE").build();
+                    // Save user
+                    userRepository.save(user);
+                    logger.info("User {} created successfully", user.getUsername());
+                } else {
+                    logger.info("User {} already exists. Skipping...", userDto.getUsername());
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Error reading users.json", e);
+        }
+    }
 
-        /* PERMISSIONS-EMAIL-SENDING */
-        PermissionEntity mailSendPermission = PermissionEntity.builder().name("MOD_MAIL_SEND").build();
-
-        /* PERMISSIONS-PROJECTS */
-        PermissionEntity projectCreatePermission = PermissionEntity.builder().name("MOD_PROJECT_CREATE").build();
-        PermissionEntity projectReadPermission = PermissionEntity.builder().name("MOD_PROJECT_READ").build();
-        PermissionEntity projectUpdatePermission = PermissionEntity.builder().name("MOD_PROJECT_UPDATE").build();
-        PermissionEntity projectDeletePermission = PermissionEntity.builder().name("MOD_PROJECT_DELETE").build();
-
-        /* PERMISSIONS-GROUPS */
-        PermissionEntity groupCreatePermission = PermissionEntity.builder().name("MOD_GROUP_CREATE").build();
-        PermissionEntity groupReadPermission = PermissionEntity.builder().name("MOD_GROUP_READ").build();
-        PermissionEntity groupUpdatePermission = PermissionEntity.builder().name("MOD_GROUP_UPDATE").build();
-        PermissionEntity groupDeletePermission = PermissionEntity.builder().name("MOD_GROUP_DELETE").build();
-
-        /* PERMISSIONS-GROUPS-TASKS */
-        PermissionEntity tasksCreatePermission = PermissionEntity.builder().name("MOD_TASK_CREATE").build();
-        PermissionEntity tasksReadPermission = PermissionEntity.builder().name("MOD_TASK_READ").build();
-        PermissionEntity tasksUpdatePermission = PermissionEntity.builder().name("MOD_TASK_UPDATE").build();
-        PermissionEntity tasksDeletePermission = PermissionEntity.builder().name("MOD_TASK_DELETE").build();
-        PermissionEntity tasksUploadFilePermission = PermissionEntity.builder().name("MOD_TASK_UPLOAD_FILE").build();
-
-        /* PERMISSIONS-USERS */
-        PermissionEntity userReadPermission = PermissionEntity.builder().name("MOD_USER_READ").build();
-        PermissionEntity userUpdatePermission = PermissionEntity.builder().name("MOD_USER_UPDATE").build();
-        PermissionEntity userDeletePermission = PermissionEntity.builder().name("MOD_USER_DELETE").build();
-
-        /* ROLES */
-        RoleEntity roleAdmin = RoleEntity.builder()
-                .roleEnum(RoleEnum.ADMIN)
-                .permissionList(Set.of(studentCreatePermission,
-                        studentReadPermission,
-                        studentUpdatePermission,
-                        teacherCreatePermission,
-                        teacherReadPermission,
-                        mailSendPermission,
-                        institutionReadPermission,
-                        institutionCreatePermission))
-                .build();
-
-        RoleEntity roleTeacher = RoleEntity.builder()
-                .roleEnum(RoleEnum.TEACHER)
-                .permissionList(Set.of(studentCreatePermission,
-                        studentReadPermission,
-                        studentUpdatePermission,
-                        studentDeletePermission,
-                        teacherCreatePermission,
-                        teacherReadPermission,
-                        mailSendPermission,
-                        institutionCreatePermission,
-                        institutionReadPermission,
-                        institutionUpdatePermission,
-                        institutionDeletePermission,
-                        projectCreatePermission,
-                        projectReadPermission,
-                        projectUpdatePermission,
-                        projectDeletePermission,
-                        groupCreatePermission,
-                        groupReadPermission,
-                        groupUpdatePermission,
-                        groupDeletePermission,
-                        tasksCreatePermission,
-                        tasksReadPermission,
-                        tasksUpdatePermission,
-                        tasksDeletePermission,
-                        tasksUploadFilePermission,
-                        userReadPermission,
-                        userUpdatePermission,
-                        userDeletePermission))
-                .build();
-
-        RoleEntity roleStudent = RoleEntity.builder()
-                .roleEnum(RoleEnum.STUDENT)
-                .permissionList(Set.of(institutionCreatePermission,
-                        institutionReadPermission,
-                        projectCreatePermission,
-                        projectReadPermission,
-                        groupReadPermission,
-                        tasksReadPermission,
-                        studentReadPermission,
-                        tasksUploadFilePermission,
-                        userReadPermission))
-                .build();
-
-        RoleEntity roleInvited = RoleEntity.builder()
-                .roleEnum(RoleEnum.INVITED)
-                .permissionList(Set.of(institutionReadPermission,
-                        projectReadPermission))
-                .build();
-
-        RoleEntity roleDeveloper = RoleEntity.builder()
-                .roleEnum(RoleEnum.DEVELOPER)
-                .permissionList(Set.of(studentCreatePermission,
-                        studentReadPermission,
-                        studentUpdatePermission,
-                        studentDeletePermission,
-                        teacherCreatePermission,
-                        teacherReadPermission,
-                        institutionCreatePermission,
-                        institutionReadPermission,
-                        institutionUpdatePermission,
-                        institutionDeletePermission,
-                        mailSendPermission,
-                        projectCreatePermission,
-                        projectReadPermission,
-                        projectUpdatePermission,
-                        projectDeletePermission,
-                        groupCreatePermission,
-                        groupReadPermission,
-                        groupUpdatePermission,
-                        groupDeletePermission,
-                        tasksCreatePermission,
-                        tasksReadPermission,
-                        tasksUpdatePermission,
-                        tasksDeletePermission,
-                        tasksUploadFilePermission,
-                        userReadPermission,
-                        userUpdatePermission,
-                        userDeletePermission))
-                .build();
-
-        /* STUDENTS */
-        StudentEntity studentJohn = StudentEntity.builder()
-					.controlNumber(123456)
-					.name("John Smit")
-					.email("John@gmail.com")
-					.program("IDS")
-					.semester(9)
-					.shift(ShiftEnum.TM)
-					.build();
-
-        /* CREATE TEACHERS */
-			TeacherEntity TeacherIsra = TeacherEntity.builder()
-					.name("Isra")
-					.email("isra@gmailcom")
-					.build();
-
-        /* USERS */
-        UserEntity userRoberto = UserEntity.builder()
-                .username("Roberto")
-                .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                .isEnabled(true)
-                .accountNoExpired(true)
-                .accountNoLocked(true)
-                .credentialNoExpired(true)
-                .roles(Set.of(roleAdmin))
-                .build();
-
-        UserEntity userJohn = UserEntity.builder()
-                .username("John")
-                .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                .isEnabled(true)
-                .accountNoExpired(true)
-                .accountNoLocked(true)
-                .credentialNoExpired(true)
-                .student(studentJohn)
-                .roles(Set.of(roleStudent))
-                .build();
-
-        UserEntity userIsra = UserEntity.builder()
-                .username("isra")
-                .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                .isEnabled(true)
-                .accountNoExpired(true)
-                .accountNoLocked(true)
-                .credentialNoExpired(true)
-                .teacher(TeacherIsra)
-                .roles(Set.of(roleTeacher))
-                .build();
-
-        UserEntity userAndrea = UserEntity.builder()
-                .username("andrea")
-                .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                .isEnabled(true)
-                .accountNoExpired(true)
-                .accountNoLocked(true)
-                .credentialNoExpired(true)
-                .roles(Set.of(roleInvited))
-                .build();
-
-        UserEntity userTito = UserEntity.builder()
-                .username("tito")
-                .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                .isEnabled(true)
-                .accountNoExpired(true)
-                .accountNoLocked(true)
-                .credentialNoExpired(true)
-                .roles(Set.of(roleDeveloper))
-                .build();
-
-        userRepository.saveAll(List.of(userRoberto, userJohn, userIsra, userAndrea, userTito));
+    private Set<RoleEntity> resolveRoles(Set<RolePermissionDTO> roleDtos) {
+        Set<String> roleEnums = roleDtos.stream().map(RolePermissionDTO::getRoleEnum).collect(Collectors.toSet());
+        List<RoleEntity> roles = roleRepository.findRoleEntitiesByRoleEnumIn(new ArrayList<>(roleEnums));
+        if (roles.size() != roleEnums.size()) {
+            Set<String> missingRoles = new HashSet<>(roleEnums);
+            missingRoles.removeAll(roles.stream().map(role -> role.getRoleEnum().name()).collect(Collectors.toSet()));
+            logger.error("The following roles are missing from the database: {}", missingRoles);
+            throw new IllegalStateException("Missing roles: " + missingRoles);
+        }
+        return new HashSet<>(roles);
     }
 }

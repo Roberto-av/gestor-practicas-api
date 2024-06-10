@@ -1,0 +1,57 @@
+[
+  {
+    "username": "Roberto",
+    "password": "1234",
+    "isEnabled": true,
+    "accountNoExpired": true,
+    "accountNoLocked": true,
+    "credentialNoExpired": true,
+    "roles": [
+      { "roleEnum": "ADMIN", "permissionList": [] }
+    ]
+  },
+  {
+    "username": "John",
+    "password": "1234",
+    "isEnabled": true,
+    "accountNoExpired": true,
+    "accountNoLocked": true,
+    "credentialNoExpired": true,
+    "roles": [
+      { "roleEnum": "STUDENT", "permissionList": [] }
+    ]
+  },
+  {
+    "username": "isra",
+    "password": "1234",
+    "isEnabled": true,
+    "accountNoExpired": true,
+    "accountNoLocked": true,
+    "credentialNoExpired": true,
+    "roles": [
+      { "roleEnum": "TEACHER", "permissionList": [] }
+    ]
+  },
+  {
+    "username": "andrea",
+    "password": "1234",
+    "isEnabled": true,
+    "accountNoExpired": true,
+    "accountNoLocked": true,
+    "credentialNoExpired": true,
+    "roles": [
+      { "roleEnum": "INVITED", "permissionList": [] }
+    ]
+  },
+  {
+    "username": "tito",
+    "password": "1234",
+    "isEnabled": true,
+    "accountNoExpired": true,
+    "accountNoLocked": true,
+    "credentialNoExpired": true,
+    "roles": [
+      { "roleEnum": "DEVELOPER", "permissionList": [] }
+    ]
+  }
+]

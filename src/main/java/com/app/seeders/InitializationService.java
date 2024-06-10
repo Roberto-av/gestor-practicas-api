@@ -17,31 +17,35 @@ public class InitializationService {
     private final CreateInstitutions createInstitutions;
     private final CreateGroups createGroups;
     private final CreateTasks createTasks;
-    private final CreateProjects createProjects;
     private final CreateStudents createStudents;
+    private final CreatePermissions createPermissions;
+    private final CreateRoles createRoles;
 
     public InitializationService(CreateUsers createUsers,
                                  CreateInstitutions createInstitutions,
                                  CreateGroups createGroups,
                                  CreateTasks createTasks,
-                                 CreateProjects createProjects,
-                                 CreateStudents createStudents) {
+                                 CreateStudents createStudents,
+                                 CreatePermissions createPermissions,
+                                 CreateRoles createRoles) {
         this.createUsers = createUsers;
         this.createInstitutions = createInstitutions;
         this.createGroups = createGroups;
         this.createTasks = createTasks;
-        this.createProjects = createProjects;
         this.createStudents = createStudents;
+        this.createPermissions = createPermissions;
+        this.createRoles = createRoles;
     }
 
     @PostConstruct
     @Transactional
     public void init() {
-        createUsers.createUsers();
+        createPermissions.createAllPermissions();
+        createRoles.createAllRoles();
+        createUsers.createAllUsers();
         createInstitutions.CreateAllInstitutions();
         createGroups.createAllGroups();
         createTasks.createAllTasks();
-        //createProjects.createAllProjects();
         createStudents.createAllStudents();
     }
 }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class CreateStudents {
@@ -28,11 +29,17 @@ public class CreateStudents {
     }
 
     public void createAllStudents() {
-
         try (InputStream inputStream = getClass().getResourceAsStream("/data/json/students.json")) {
             List<StudentEntity> students = jacksonObjectMapper.readValue(inputStream, new TypeReference<>() {
             });
-            studentRepository.saveAll(students);
+            for (StudentEntity student : students) {
+                Optional<StudentEntity> existingStudent = studentRepository.findStudentByEmail(student.getEmail());
+                if (existingStudent.isEmpty()) {
+                    studentRepository.save(student);
+                } else {
+                    logger.info("Student with email {} already exists. Skipping...", student.getEmail());
+                }
+            }
         } catch (Exception e) {
             logger.error("Error reading students.json", e);
         }
