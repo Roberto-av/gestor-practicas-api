@@ -33,7 +33,7 @@ public class CreateTasks {
         Optional<UserEntity> userOptional = userRepository.findById(1L);
 
         if (groups.isEmpty() || userOptional.isEmpty()) {
-            throw new RuntimeException("No hay grupos o susurios disponibles");
+            throw new RuntimeException("No hay grupos o usuarios disponibles");
         }
 
         UserEntity user = userOptional.get();
@@ -45,9 +45,20 @@ public class CreateTasks {
 
         for (GroupEntity group : groups) {
             for (int i = 1; i <= 5; i++) {
+                String taskTitle = title + " " + i;
+                String taskDescription = description + " " + i;
+
+                // Check if task already exists for this group and parameters
+                TaskEntity existingTask = taskRepository.findFirstByTittleAndDescriptionAndGroup(taskTitle, taskDescription, group);
+                if (existingTask != null) {
+                    // If task exists, log a message and skip adding it again
+                    System.out.println("Task with title '" + taskTitle + "' and description '" + taskDescription + "' already exists for group " + group.getName() + ". Skipping...");
+                    continue;
+                }
+
                 TaskEntity task = TaskEntity.builder()
-                        .tittle(title + " " + i)
-                        .description(description + " " + i)
+                        .tittle(taskTitle)
+                        .description(taskDescription)
                         .initialDate(LocalDateTime.of(2024, 8, 5, 8, 0))
                         .endDate(LocalDateTime.of(2024, 8, 15, 23, 59))
                         .group(group)

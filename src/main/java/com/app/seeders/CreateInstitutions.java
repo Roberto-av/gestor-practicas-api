@@ -2,13 +2,18 @@ package com.app.seeders;
 
 import com.app.persistence.entities.institutions.*;
 import com.app.persistence.repositories.InstitutionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class CreateInstitutions {
+    private static final Logger logger = LoggerFactory.getLogger(InitializationService.class);
+
 
     private final InstitutionRepository institutionRepository;
 
@@ -81,8 +86,23 @@ public class CreateInstitutions {
                 .responsible(responsible2)
                 .build();
 
-        institutionRepository.saveAll(List.of(institution1, institution2));
+        saveIfNotExists(institution1);
+        saveIfNotExists(institution2);
     }
 
+    private void saveIfNotExists(InstitutionEntity institution) {
+        Optional<InstitutionEntity> existingByRfc = institutionRepository.findInstitutionByRfc(institution.getRfc());
+        if (existingByRfc.isPresent()) {
+            logger.info("Institution with RFC {} already exists. Skipping...", institution.getRfc());
+            return;
+        }
 
+        Optional<InstitutionEntity> existingByCompanyName = institutionRepository.findInstitutionByCompanyName(institution.getCompanyName());
+        if (existingByCompanyName.isPresent()) {
+            logger.info("Institution with company name {} already exists. Skipping...", institution.getCompanyName());
+            return;
+        }
+
+        institutionRepository.save(institution);
+    }
 }

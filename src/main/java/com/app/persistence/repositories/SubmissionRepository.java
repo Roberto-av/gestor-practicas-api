@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface SubmissionRepository extends JpaRepository<SubmissionEntity, Long> {
     List<SubmissionEntity> findByTaskAndUser(TaskEntity task, UserEntity user);
+    List<SubmissionEntity> findByTask(TaskEntity task);
 }

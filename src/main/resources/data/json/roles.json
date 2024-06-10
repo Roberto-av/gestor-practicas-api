@@ -1,0 +1,100 @@
+[
+  {
+    "roleEnum": "ADMIN",
+    "permissionList": [
+      "MOD_STUDENT_CREATE",
+      "MOD_STUDENT_READ",
+      "MOD_STUDENT_UPDATE",
+      "MOD_TEACHER_CREATE",
+      "MOD_TEACHER_READ",
+      "MOD_MAIL_SEND",
+      "MOD_INSTITUTION_READ",
+      "MOD_INSTITUTION_CREATE"
+    ]
+  },
+  {
+    "roleEnum": "TEACHER",
+    "permissionList": [
+      "MOD_STUDENT_CREATE",
+      "MOD_STUDENT_READ",
+      "MOD_STUDENT_UPDATE",
+      "MOD_STUDENT_DELETE",
+      "MOD_TEACHER_CREATE",
+      "MOD_TEACHER_READ",
+      "MOD_MAIL_SEND",
+      "MOD_INSTITUTION_CREATE",
+      "MOD_INSTITUTION_READ",
+      "MOD_INSTITUTION_UPDATE",
+      "MOD_INSTITUTION_DELETE",
+      "MOD_PROJECT_CREATE",
+      "MOD_PROJECT_READ",
+      "MOD_PROJECT_UPDATE",
+      "MOD_PROJECT_DELETE",
+      "MOD_GROUP_CREATE",
+      "MOD_GROUP_READ",
+      "MOD_GROUP_UPDATE",
+      "MOD_GROUP_DELETE",
+      "MOD_TASK_CREATE",
+      "MOD_TASK_READ",
+      "MOD_TASK_UPDATE",
+      "MOD_TASK_DELETE",
+      "MOD_TASK_UPLOAD_FILE",
+      "MOD_USER_READ",
+      "MOD_USER_UPDATE",
+      "MOD_USER_DELETE"
+    ]
+  },
+  {
+    "roleEnum": "STUDENT",
+    "permissionList": [
+      "MOD_INSTITUTION_CREATE",
+      "MOD_INSTITUTION_READ",
+      "MOD_PROJECT_CREATE",
+      "MOD_PROJECT_READ",
+      "MOD_GROUP_READ",
+      "MOD_TASK_READ",
+      "MOD_STUDENT_READ",
+      "MOD_TASK_UPLOAD_FILE",
+      "MOD_USER_READ"
+    ]
+  },
+  {
+    "roleEnum": "INVITED",
+    "permissionList": [
+      "MOD_INSTITUTION_READ",
+      "MOD_PROJECT_READ"
+    ]
+  },
+  {
+    "roleEnum": "DEVELOPER",
+    "permissionList": [
+      "MOD_STUDENT_CREATE",
+      "MOD_STUDENT_READ",
+      "MOD_STUDENT_UPDATE",
+      "MOD_STUDENT_DELETE",
+      "MOD_TEACHER_CREATE",
+      "MOD_TEACHER_READ",
+      "MOD_INSTITUTION_CREATE",
+      "MOD_INSTITUTION_READ",
+      "MOD_INSTITUTION_UPDATE",
+      "MOD_INSTITUTION_DELETE",
+      "MOD_MAIL_SEND",
+      "MOD_PROJECT_CREATE",
+      "MOD_PROJECT_READ",
+      "MOD_PROJECT_UPDATE",
+      "MOD_PROJECT_DELETE",
+      "MOD_GROUP_CREATE",
+      "MOD_GROUP_READ",
+      "MOD_GROUP_UPDATE",
+      "MOD_GROUP_DELETE",
+      "MOD_TASK_CREATE",
+      "MOD_TASK_READ",
+      "MOD_TASK_UPDATE",
+      "MOD_TASK_DELETE",
+      "MOD_TASK_UPLOAD_FILE",
+      "MOD_USER_READ",
+      "MOD_USER_UPDATE",
+      "MOD_USER_DELETE"
+    ]
+  }
+]
