@@ -91,6 +91,7 @@ public class SecurityConfig {
 
                     /* TASKS */
                     requests.requestMatchers(HttpMethod.POST, "/api/tasks/create").hasAnyAuthority("MOD_TASK_CREATE");
+                    requests.requestMatchers(HttpMethod.POST, "/api/tasks/create-with-files").hasAnyAuthority("MOD_TASK_CREATE");
                     requests.requestMatchers(HttpMethod.POST, "/api/tasks/{id}/upload-file").hasAnyAuthority("MOD_TASK_UPLOAD_FILE");
                     requests.requestMatchers(HttpMethod.GET, "/api/tasks/**").hasAnyAuthority("MOD_TASK_READ");
                     requests.requestMatchers(HttpMethod.PUT, "/api/tasks/update").hasAnyAuthority("MOD_TASK_UPDATE");
@@ -98,10 +99,6 @@ public class SecurityConfig {
                     requests.requestMatchers(HttpMethod.POST, "/api/tasks/**").hasAnyRole("TEACHER","STUDENT");
                     requests.requestMatchers(HttpMethod.PUT, "/api/tasks/{taskId}/submission/{submissionId}").hasAnyRole("TEACHER","STUDENT");
                     requests.requestMatchers(HttpMethod.DELETE, "/api/tasks/delete/submission/{submissionId}/files/{fileId}").hasAnyRole("TEACHER","STUDENT");
-
-
-
-
 
                     requests.anyRequest().denyAll();
                 })

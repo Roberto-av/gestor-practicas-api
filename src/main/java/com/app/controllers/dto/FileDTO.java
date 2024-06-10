@@ -13,7 +13,6 @@ public class FileDTO {
     private String name;
     private String filePath;
     private Long taskId;
-    private UserDTO user;
     private Date createdAt;
     private Date updatedAt;
 }

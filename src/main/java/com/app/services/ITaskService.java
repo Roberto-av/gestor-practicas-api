@@ -10,10 +10,11 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface ITaskService {
-    TaskDTO createTask(TaskDTO taskDTO, List<MultipartFile> files);
+    TaskDTO createTaskWithFiles(TaskDTO taskDTO, List<MultipartFile> files);
+    TaskDTO createTask(TaskDTO taskDTO);
     TaskDTO getTaskById(Long id);
     List<TaskDTO> getAllTasks();
-    TaskDTO updateTask(Long id, TaskDTO taskDTO);
+    TaskDTO updateTask(Long id, TaskDTO taskDTO, List<MultipartFile> files);
     void deleteTask(Long id);
     FileDTO uploadFile(Long taskId, Long userId, MultipartFile file);
     List<TaskDTO> getAllTasksWithFiles();
@@ -24,4 +25,7 @@ public interface ITaskService {
     SubmissionDTO updateSubmission(Long taskId, Long submissionId, Long userId, List<MultipartFile> files);
     List<SubmissionDTO> getSubmissionByTaskAndUser(Long taskId, Long userId);
     void deleteSubmissionFile(Long submissionId, Long fileId);
+    List<SubmissionDTO> getSubmissionsByTask(Long taskId);
+    Path getSubmissionFilePath(Long fileId);
+
 }

@@ -7,6 +7,10 @@ import com.app.controllers.dto.TaskDTO;
 import com.app.services.IFileService;
 import com.app.services.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,11 +28,17 @@ public class TaskController {
     @Autowired
     private IFileService fileService;
 
-    @PostMapping("create")
+    @PostMapping("/create")
+    public ResponseEntity<TaskDTO> createTaskWithoutFiles(@RequestBody TaskDTO taskDTO) {
+        TaskDTO createdTask = taskService.createTask(taskDTO);
+        return ResponseEntity.ok(createdTask);
+    }
+
+    @PostMapping("/create-with-files")
     public ResponseEntity<TaskDTO> createTask(
             @RequestPart("task") TaskDTO taskDTO,
             @RequestPart("files") List<MultipartFile> files) {
-        TaskDTO createdTask = taskService.createTask(taskDTO, files);
+        TaskDTO createdTask = taskService.createTaskWithFiles(taskDTO, files);
         return ResponseEntity.ok(createdTask);
     }
 
@@ -45,13 +55,15 @@ public class TaskController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<TaskDTO> updateTask(@RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<TaskDTO> updateTask(
+                                              @RequestPart("task") TaskDTO taskDTO,
+                                              @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         Long id = taskDTO.getId();
-        TaskDTO updatedTask = taskService.updateTask(id, taskDTO);
+        TaskDTO updatedTask = taskService.updateTask(id, taskDTO, files);
         return ResponseEntity.ok(updatedTask);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
@@ -78,6 +90,12 @@ public class TaskController {
     @GetMapping("/{taskId}/submission")
     public ResponseEntity<List<SubmissionDTO>> getSubmissionByTaskAndUser(@PathVariable Long taskId, @RequestParam Long userId) {
         List<SubmissionDTO> submissions = taskService.getSubmissionByTaskAndUser(taskId, userId);
+        return ResponseEntity.ok(submissions);
+    }
+
+    @GetMapping("/all-submissions/{taskId}")
+    public ResponseEntity<List<SubmissionDTO>> getSubmissionsByTask(@PathVariable Long taskId) {
+        List<SubmissionDTO> submissions = taskService.getSubmissionsByTask(taskId);
         return ResponseEntity.ok(submissions);
     }
 
@@ -115,4 +133,43 @@ public class TaskController {
         Path filePath = fileService.getFilePath(fileId);
         return ResponseEntity.ok(filePath);
     }
+
+    @GetMapping("/files/{fileId}/download")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
+        try {
+            Path filePath = taskService.getFilePath(fileId);
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                String filename = filePath.getFileName().toString();
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                        .body(resource);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/submissions/files/{fileId}/download")
+    public ResponseEntity<Resource> downloadSubmissionFile(@PathVariable Long fileId) {
+        try {
+            Path filePath = taskService.getSubmissionFilePath(fileId);
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                String filename = filePath.getFileName().toString();
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                        .body(resource);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

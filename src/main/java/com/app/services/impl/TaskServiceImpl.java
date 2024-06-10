@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,12 +47,40 @@ public class TaskServiceImpl implements ITaskService {
     private ConverterDTO taskMapper;
 
     @Override
-    public TaskDTO createTask(TaskDTO taskDTO, List<MultipartFile> files) {
+    public TaskDTO createTask(TaskDTO taskDTO) {
+
         UserEntity user = userRepository.findById(taskDTO.getUser().getId())
                 .orElseThrow(() -> new IdNotFundException(taskDTO.getUser().getId()));
+
         GroupEntity group = groupRepository.findById(taskDTO.getGroup().getId())
                 .orElseThrow(() -> new IdNotFundException(taskDTO.getGroup().getId()));
+
         TaskEntity taskEntity = taskMapper.toEntity(taskDTO, user, group);
+
+        if (taskEntity.getFiles() == null) {
+            taskEntity.setFiles(new ArrayList<>());
+        }
+
+        TaskEntity savedTask = taskRepository.save(taskEntity);
+
+        return taskMapper.toDTO(savedTask);
+    }
+
+    @Override
+    public TaskDTO createTaskWithFiles(TaskDTO taskDTO, List<MultipartFile> files) {
+
+        UserEntity user = userRepository.findById(taskDTO.getUser().getId())
+                .orElseThrow(() -> new IdNotFundException(taskDTO.getUser().getId()));
+
+        GroupEntity group = groupRepository.findById(taskDTO.getGroup().getId())
+                .orElseThrow(() -> new IdNotFundException(taskDTO.getGroup().getId()));
+
+        TaskEntity taskEntity = taskMapper.toEntity(taskDTO, user, group);
+
+        if (taskEntity.getFiles() == null) {
+            taskEntity.setFiles(new ArrayList<>());
+        }
+
         TaskEntity savedTask = taskRepository.save(taskEntity);
 
         for (MultipartFile file : files) {
@@ -81,7 +106,7 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     @Override
-    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO, List<MultipartFile> files) {
         TaskEntity existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new IdNotFundException(id));
 
@@ -89,6 +114,7 @@ public class TaskServiceImpl implements ITaskService {
         existingTask.setDescription(taskDTO.getDescription());
         existingTask.setInitialDate(taskDTO.getInitialDate());
         existingTask.setEndDate(taskDTO.getEndDate());
+        existingTask.setStatusTask(taskDTO.getStatusTask());
 
         UserEntity user = userRepository.findById(taskDTO.getUser().getId())
                 .orElseThrow(() -> new IdNotFundException(taskDTO.getUser().getId()));
@@ -98,9 +124,14 @@ public class TaskServiceImpl implements ITaskService {
                 .orElseThrow(() -> new IdNotFundException(taskDTO.getGroup().getId()));
         existingTask.setGroup(group);
 
-        existingTask.setStatusTask(taskDTO.getStatusTask());
-
         TaskEntity savedTask = taskRepository.save(existingTask);
+
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                uploadFile(savedTask.getId(), taskDTO.getUser().getId(), file);
+            }
+        }
+
         return taskMapper.toDTO(savedTask);
     }
 
@@ -231,14 +262,12 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public SubmissionDTO updateSubmission(Long taskId, Long submissionId, Long userId, List<MultipartFile> files) {
-        // Verificar si la tarea y la entrega existen
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IdNotFundException(taskId));
 
         SubmissionEntity submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new IdNotFundException(submissionId));
 
-        // Verificar si el usuario es el propietario de la entrega
         if (!submission.getUser().getId().equals(userId)) {
             throw new UnauthorizedException("User is not authorized to update this submission");
         }
@@ -283,18 +312,15 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public List<SubmissionDTO> getSubmissionByTaskAndUser(Long taskId, Long userId) {
-        // Obtener la tarea por su ID
+
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IdNotFundException(taskId));
 
-        // Obtener el usuario por su ID
+
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IdNotFundException(userId));
-
-        // Obtener todas las presentaciones asociadas a la tarea y el usuario
         List<SubmissionEntity> submissions = submissionRepository.findByTaskAndUser(task, user);
 
-        // Convertir las entidades de presentaciones en objetos DTO
         return submissions.stream()
                 .map(taskMapper::toSubmissionDTO)
                 .collect(Collectors.toList());
@@ -302,29 +328,42 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public void deleteSubmissionFile(Long submissionId, Long fileId) {
-        // Verificar si la entrega existe
         SubmissionEntity submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new IdNotFundException(submissionId));
 
-        // Verificar si el archivo existe
         SubmissionFileEntity file = SubmissionFileRepository.findById(fileId)
                 .orElseThrow(() -> new IdNotFundException(fileId));
 
-        // Verificar si el archivo pertenece a la entrega
         if (!file.getSubmission().getId().equals(submissionId)) {
             throw new UnauthorizedException("File does not belong to this submission");
         }
 
-        // Eliminar el archivo del sistema de archivos
         Path path = Paths.get(file.getFilePath());
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
             throw new RuntimeException("Error deleting file", e);
         }
-
-        // Eliminar el archivo de la base de datos
         SubmissionFileRepository.delete(file);
     }
+
+    @Override
+    public List<SubmissionDTO> getSubmissionsByTask(Long taskId) {
+        TaskEntity task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IdNotFundException(taskId));
+
+        List<SubmissionEntity> submissions = submissionRepository.findByTask(task);
+        return submissions.stream()
+                .map(taskMapper::toSubmissionDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Path getSubmissionFilePath(Long fileId) {
+        SubmissionFileEntity fileEntity = SubmissionFileRepository.findById(fileId)
+                .orElseThrow(() -> new IdNotFundException(fileId));
+        return Paths.get(fileEntity.getFilePath());
+    }
+
 
 }

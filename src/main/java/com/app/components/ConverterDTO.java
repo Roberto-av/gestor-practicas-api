@@ -42,7 +42,6 @@ public class ConverterDTO {
                 .name(fileEntity.getName())
                 .filePath(fileEntity.getFile_path())
                 .taskId(fileEntity.getTask().getId())
-                .user(toUserDTO(fileEntity.getUser()))
                 .createdAt(fileEntity.getCreatedAt())
                 .updatedAt(fileEntity.getUpdatedAt())
                 .build();
