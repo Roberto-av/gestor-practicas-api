@@ -38,5 +38,6 @@ public class PermissionEntity {
     private Date updatedAt;
 
     @ManyToMany(mappedBy = "permissionList", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();
 }

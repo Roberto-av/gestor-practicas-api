@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-@PropertySource("classpath:email.properties")
 public class EmailServiceImpl implements IEmailService {
 
     @Value("${spring.mail.username}")
@@ -39,8 +38,12 @@ public class EmailServiceImpl implements IEmailService {
     @Autowired
     private StudentRepository studentRepository;
     @Qualifier("templateEngine")
+
     @Autowired
     private SpringTemplateEngine templateEngine;
+
+    @Value("${app.invitation.url.base}")
+    private String invitationUrlBase;
 
     @Override
     public void sendEmail(String[] toUser, String subject, String message) {
@@ -78,7 +81,7 @@ public class EmailServiceImpl implements IEmailService {
                 String nombreEstudiante = studentEntity.getName();
 
                 String token = jwtUtils.generateInvitationToken(email, groupId);
-                String link = "http://localhost:3000/auth/register/student?token=" + token;
+                String link = invitationUrlBase + "/auth/register/student?token=" + token;
 
                 Map<String, Object> templateVariables = new HashMap<>();
                 templateVariables.put("nombreEstudiante", nombreEstudiante);

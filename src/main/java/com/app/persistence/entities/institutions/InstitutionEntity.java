@@ -55,6 +55,7 @@ public class InstitutionEntity {
     private String telephoneNumber;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private StatusEnum status = StatusEnum.PENDING;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -79,6 +80,7 @@ public class InstitutionEntity {
     private List<ProjectEntity> projects;
 
     @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<StudentEntity> students = new ArrayList<>();
 
     @PrePersist
