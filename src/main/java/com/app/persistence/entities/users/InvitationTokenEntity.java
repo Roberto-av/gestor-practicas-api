@@ -31,6 +31,7 @@ public class InvitationTokenEntity {
     private String email;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean used = false;
 
     @Temporal(TemporalType.TIMESTAMP)

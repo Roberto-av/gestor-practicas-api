@@ -30,7 +30,8 @@ public class TaskEntity {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private StatusTaskEnum statusTask;
+    @Builder.Default
+    private StatusTaskEnum statusTask = StatusTaskEnum.DISABLE;
 
     @Column(name = "initial_date")
     private LocalDateTime initialDate;
@@ -43,6 +44,7 @@ public class TaskEntity {
     private UserEntity user;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<FileEntity> files = new ArrayList<>();;
 
     @ManyToOne

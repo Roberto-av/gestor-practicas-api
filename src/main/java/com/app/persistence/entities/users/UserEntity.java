@@ -36,16 +36,20 @@ public class UserEntity {
     private String password;
 
     @Column(name = "is_enabled")
-    private boolean isEnabled;
+    @Builder.Default
+    private boolean isEnabled = true;
 
     @Column(name = "account_No_Expired")
-    private boolean accountNoExpired;
+    @Builder.Default
+    private boolean accountNoExpired = true;
 
     @Column(name = "account_No_Locked")
-    private boolean accountNoLocked;
+    @Builder.Default
+    private boolean accountNoLocked = true;
 
     @Column(name = "credential_No_Expired")
-    private boolean credentialNoExpired;
+    @Builder.Default
+    private boolean credentialNoExpired = true;
 
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
@@ -59,6 +63,7 @@ public class UserEntity {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
