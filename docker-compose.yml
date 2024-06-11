@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Configuración del servicio de la base de datos MySQL
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: gestor_practicas      # Nombre de la base de datos
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    ports:
+      - "3307:3306"                    # Puerto para MySQL (puedes cambiarlo si es necesario)     # Persistencia de datos
+
+  # Configuración del servicio de la aplicación Spring Boot
+  gestor-practicas-api:
+    build:
+      context: .                        # Directorio de construcción (usa el Dockerfile en este directorio)
+      dockerfile: Dockerfile            # Nombre del Dockerfile
+    ports:
+      - "9090:9090"                     # Puerto expuesto para la aplicación Spring Boot
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/gestor_practicas?createDatabaseIfNotExist=true&serverTimezone=UTC
+      - DB_USER_NAME=root
+      - DB_PASSWORD=root
+      - CORS_ORIGIN=http://localhost:3000
+      - INVITATION_URL=http://localhost:3000
+      - EMAIL_USER_NAME=avilesrobertoe@gmail.com
+      - EMAIL_PASSWORD=ifmnxksgxpudzjxy
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy                         # Conecta la aplicación con el servicio de la base de datos                       # Volumen para persistencia de datos MySQL
+
